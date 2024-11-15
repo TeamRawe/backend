@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # DATABASE SERVER 
 ## (Без контейнера)
 
@@ -67,4 +65,3 @@ python manage.py migrate
 python manage.py runserver
 ```
 Проект будет доступен по адресу __http://127.0.0.1:8000/__.
->>>>>>> 1cee14b (feat(): 1. Начальный коммит)
