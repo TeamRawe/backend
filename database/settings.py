@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'phonenumber_field',
     'users',
+    'contractors',
+    'projects',
 ]
 
 MIDDLEWARE = [
@@ -136,3 +138,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 FIELD_ENCRYPTION_KEY = env('ENC_KEY')
+
+ALLOWED_FILE_EXTENSIONS = ['pdf',
+                           'docx',
+                           'xlsx',
+                           'txt',
+                           'doc',
+                           'rtf',
+                           'csv',
+                           'jpeg',
+                           'png',
+                           'grs',
+                           'mxl',
+                           'geo',
+                           'ppt',
+                           'pptx'
+                           ]
