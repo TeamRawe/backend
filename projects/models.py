@@ -1,8 +1,8 @@
-from django.db import models
-import uuid
 import mimetypes
 from contractors.models import *
+from users.models import User
 from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 from database.settings import ALLOWED_FILE_EXTENSIONS
 from datetime import datetime
 
@@ -14,7 +14,7 @@ class File(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     project = models.ForeignKey(
-        'Project', on_delete=models.PROTECT, related_name='files', null=False, blank=False
+        'Project', on_delete=models.PROTECT, related_name='files', null=True, blank=False
     )
     stage = models.ForeignKey(
         'Stage', on_delete=models.PROTECT, related_name='files', null=True, blank=True
@@ -85,6 +85,11 @@ class File(models.Model):
 
         super().save(*args, **kwargs)
 
+    def clean(self):
+        # Проверка, что хотя бы одно из полей 'project' или 'stage' должно быть заполнено
+        if not self.project and not self.stage:
+            raise ValidationError("File must be associated with either a project or a stage.")
+
     def __str__(self):
         return f'{self.category} - {self.file.name}'
 
@@ -104,7 +109,13 @@ class Project(models.Model):
     end_date = models.DateField()
     planned_cost = models.DecimalField(max_digits=10, decimal_places=2, help_text='Плановый бюджет')
     # Связь с госкомпанией - заказчиком проекта
-    customer = models.ForeignKey(GovernmentalCompany, on_delete=models.PROTECT, related_name="projects")
+    customer = models.ForeignKey(GovernmentalCompany, null=True, on_delete=models.PROTECT, related_name="projects")
+
+    def clean(self):
+        if self.end_date < self.start_date:
+            raise ValidationError("Дата окончания не может быть раньше даты начала.")
+        if self.planned_cost < 0:
+            raise ValidationError("Плановый бюджет не может быть отрицательным.")
 
     class ProjectStatus(models.TextChoices):
         ARCHIVED = 'ARCHIVED', 'В архиве'
@@ -140,10 +151,16 @@ class Stage(models.Model):
         related_name='children_stages',
         help_text='Родительский этап'
     )
-    name = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
     planned_cost = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def clean(self):
+        if self.end_date < self.start_date:
+            raise ValidationError("Дата окончания не может быть раньше даты начала.")
+        if self.planned_cost < 0:
+            raise ValidationError("Плановый бюджет не может быть отрицательным.")
 
     class StageStatus(models.TextChoices):
         APPROVED = 'APPROVED', 'Проект сдан'
@@ -175,4 +192,96 @@ class Stage(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.number} {self.name}'
+        return f'{self.number} {self.title}'
+
+
+class AssignmentBase(models.Model):
+    """Абстрактный класс, содержащий общие поля и методы для назначения на проекты и этапы."""
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    user = models.ForeignKey(User,
+                             on_delete=models.PROTECT,
+                             related_name='assigned_users',
+                             blank=True,
+                             help_text='Назначения на проект или этап'
+                             )
+
+    activate_at = models.DateTimeField(help_text='Время назначения', blank=False)
+    deactivate_at = models.DateTimeField(help_text='Время окончания назначения', blank=False)
+
+    class AssignmentStatus(models.TextChoices):
+        ACTIVE = 'ACTIVE', 'Пользователь имеет доступ к объекту назначения'
+        FREEZED = 'FREEZED', 'Пользователь временно не имеет доступ к объекту назначения'
+        INACTIVE = 'INACTIVE', 'Пользователь не имеет доступ к объекту назначения'
+
+    status = models.CharField(
+        max_length=25,
+        choices=AssignmentStatus.choices,
+        default=AssignmentStatus.FREEZED,
+        help_text='Активное состояние назначения'
+    )
+
+    def activate(self):
+        """Метод для активации назначения (включает доступ)."""
+        self.status = self.AssignmentStatus.ACTIVE
+        self.save()
+
+    def freeze(self):
+        """Метод для временной заморозки назначения (отключает доступ)."""
+        self.status = self.AssignmentStatus.FREEZED
+        self.save()
+
+    def deactivate(self):
+        """Метод для деактивации назначения (выключает доступ)."""
+        self.status = self.AssignmentStatus.INACTIVE
+        self.save()
+
+    def clean(self):
+        """Проверка, что activate_at < deactivate_at"""
+        if self.deactivate_at and self.activate_at >= self.deactivate_at:
+            raise ValidationError(
+                "Дата окончания назначения не может быть раньше или совпадать с датой начала назначения.")
+
+    class Meta:
+        abstract = True  # Делает этот класс абстрактным
+
+    target = None
+
+    def __str__(self):
+        return f'статус: {self.status}, ' \
+               f'{self.user} назначен на {self.target} с {self.activate_at} до {self.deactivate_at} '
+
+
+class ProjectAssignment(AssignmentBase):
+    target = models.ForeignKey(Project,
+                               on_delete=models.PROTECT,
+                               related_name='assigned_projects',
+                               help_text='Назначения на проект'
+                               )
+    user = models.ForeignKey(User,
+                             on_delete=models.PROTECT,
+                             related_name='project_assigned_users',
+                             blank=True,
+                             help_text='Назначения на проект или этап'
+                             )
+
+    def __str__(self):
+        return super().__str__()
+
+
+class StageAssignment(AssignmentBase):
+    target = models.ForeignKey(Stage,
+                               on_delete=models.PROTECT,
+                               related_name='assigned_stages',
+                               help_text='Назначения на этап'
+                               )
+    user = models.ForeignKey(User,
+                             on_delete=models.PROTECT,
+                             related_name='stage_assigned_users',
+                             blank=True,
+                             help_text='Назначения на проект или этап'
+                             )
+
+    def __str__(self):
+        return super().__str__()

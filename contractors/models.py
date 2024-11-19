@@ -17,7 +17,7 @@ class ContactFace(models.Model):
         null=True,
         help_text='Электронная почта'
     )
-    name = models.CharField(max_length=255, blank=False, Null=False)
+    name = models.CharField(max_length=255, blank=False, null=False)
 
     def __str__(self):
         return self.name
@@ -55,10 +55,10 @@ class SubContractor(models.Model):
         null=False,
         help_text='Электронная почта'
     )
-    contact_faces = models.ManyToManyField(
+    contacts = models.ManyToManyField(
         ContactFace,  # Модель ContactFace, связь многие ко многим
-        related_name='contractors',  # Связь в обратную сторону (с ContactFace)
-        blank=True,  # Свободное добавление контактных лиц, если они есть
+        related_name='organisation',  # Связь в обратную сторону (с ContactFace)
+        blank=True,# Свободное добавление контактных лиц, если они есть
         help_text='Контактные лица'
     )
 
@@ -154,10 +154,10 @@ class GovernmentalCompany(models.Model):
         null=True,
         help_text='Сайт компании'
     )
-    contact_faces = models.ManyToManyField(
+    contacts = models.ManyToManyField(
         ContactFace,  # Модель ContactFace, связь многие ко многим
-        related_name='contractors',  # Связь в обратную сторону (с ContactFace)
-        blank=True,  # Свободное добавление контактных лиц, если они есть
+        related_name='gov_company',  # Связь в обратную сторону (с ContactFace)
+        blank=True,# Свободное добавление контактных лиц, если они есть
         help_text='Контактные лица'
     )
 
