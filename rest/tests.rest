@@ -1,0 +1,25 @@
+POST http://127.0.0.1:8000/u/api/login/
+Content-Type: application/json
+
+{"email": "bajenchik@smradnik.com", "password": "pwd1488"}
+
+###
+
+GET http://127.0.0.1:8000/u/api/test/
+Content-Type: application/json
+
+{}
+
+###
+
+GET http://127.0.0.1:8000/u/api/secure_test/
+Content-Type: application/json
+Cookie: access_token=<ваш access_token>
+
+###
+
+POST http://127.0.0.1:8000/u/api/refresh/
+Content-Type: application/json
+Cookie: refresh_token=<ваш refresh_token>
+
+###

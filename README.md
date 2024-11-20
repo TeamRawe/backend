@@ -11,6 +11,7 @@
 3. Выполните следующие шаги используя свои данные для создания базы данных и пользователя:
 
    ```sql
+   ALTER USER db_user CREATEDB;
    CREATE DATABASE my_db;
    CREATE USER db_user WITH PASSWORD '!!!!!!!!!password';
    GRANT ALL PRIVILEGES ON DATABASE gorder_db TO db_user;
