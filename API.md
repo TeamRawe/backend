@@ -58,7 +58,7 @@
     ***URL: GET http://127.0.0.1:8000/u/api/test/***
 
     **Описание:**
-  
+
     Публичный эндпоинт, доступный без авторизации. Возвращает сообщение для тестирования доступности API.
 
     **Пример запроса:**
@@ -67,7 +67,7 @@
     GET http://127.0.0.1:8000/u/api/test/
     Content-Type: application/json
     ```
-    
+
     Ответ (статус 200):
 
     ```json
@@ -104,48 +104,51 @@
 
     `401 Unauthorized`: Отсутствует или истек `access_token`.
 
-    Обновление токена доступа (Refresh)
-
-    ***URL: POST http://127.0.0.1:8000/u/api/refresh/***
-
-    **Описание:**
-
-    Обновляет `access_token` и `refresh_token`, используя текущий `refresh_token`, который передается в теле запроса. Возвращает новые токены в теле ответа.
-
-    **Пример запроса:**
-
-    ```http
-    POST http://127.0.0.1:8000/u/api/refresh/
-    Content-Type: application/json
-    Authorization: Bearer <ваш refresh_token>
-    ```
-    **Ответ при успешном обновлении (статус 200):**
-
-    ```json
-    {
-      "detail": "New tokens have been sent"
-    }
-    ```
     ---
 
-    **Ошибки:**
+5.    Обновление токена доступа (Refresh)
 
-    `400 Bad Request`: Отсутствует `refresh_token` или токен невалиден.
+      ***URL: POST http://127.0.0.1:8000/u/api/logout/***
 
-    `403 Forbidden`: Попытка обновить токены для суперпользователя.
+      **Описание:**
 
-    **Общие примечания:**
+      Обновляет `access_token` и `refresh_token`, используя текущий `refresh_token`, который передается в теле запроса. Возвращает новые токены в теле ответа.
 
-    **Токены:**
+      **Пример запроса:**
 
-    `access_token` используется для авторизации защищенных эндпоинтов. Он должен быть передан в заголовке `Authorization` в формате: `Authorization: Bearer <access_token>`
+      ```http
+      POST http://127.0.0.1:8000/u/api/logout/
+      Content-Type: application/json
+      Authorization: Bearer <ваш refresh_token>
+      ```
+      **Ответ при успешном обновлении (статус 200):**
 
-    `refresh_token` используется для обновления `access_token`. Он также передается в заголовке `Authorization` в формате:
-    `Authorization: Bearer <refresh_token>.`
+      ```json
+      {
+        "detail": "New tokens have been sent"
+      }
+      ```
+      ---
 
-    ---
+      **Ошибки:**
+      ---
 
-4. **Тест с ограничением по роли (только для администраторов)**
+      `400 Bad Request`: Отсутствует `refresh_token` или токен невалиден.
+
+      `403 Forbidden`: Попытка обновить токены для суперпользователя.
+
+      **Общие примечания:**
+
+      **Токены:**
+
+      `access_token` используется для авторизации защищенных эндпоинтов. Он должен быть передан в заголовке `Authorization` в формате: `Authorization: Bearer <access_token>`
+
+      `refresh_token` используется для обновления `access_token`. Он также передается в заголовке `Authorization` в формате:
+      `Authorization: Bearer <refresh_token>.`
+
+      ---
+
+6. **Тест с ограничением по роли (только для администраторов)**
     ***URL: GET http://127.0.0.1:8000/u/api/test_role/***
 
     **Описание:**
@@ -185,5 +188,5 @@
     `400 Bad Request`: Невалидные токены.
 
     `403 Forbidden`: Попытка выполнения операции для суперпользователя, которая не разрешена для обычных пользователей.
-    
+
     ---
