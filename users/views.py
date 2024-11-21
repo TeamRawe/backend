@@ -2,7 +2,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from database.settings import DEBUG
 from rest_framework_simplejwt.exceptions import TokenError
 from .role_restrictons import *
 
@@ -76,3 +75,4 @@ def test_role(request):
     user = request.user
     # noinspection PyUnresolvedReferences
     return Response({"message": f"Hello, {user.first_name}! Your role: {user.role} This was a test."})
+
