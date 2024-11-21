@@ -17,42 +17,46 @@ def role_required(allowed_roles):
         return _wrapped_view
     return decorator
 
-def assignment_required(view_func):
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        #Подсасывваем пользователя
-        user = request.user
+def assignment_required(allowed_statuses):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            user = request.user
+            project_id = kwargs.get('project_id')
+            stage_id = kwargs.get('stage_id')
 
-        # Извлекаем ID проекта или этапа из URL-параметров
-        project_id = kwargs.get('project_id')  # Получаем project_id из URL
-        stage_id = kwargs.get('stage_id')  # Получаем stage_id из URL (если нужно)
+            # Проверка назначения на этап
+            if stage_id:
+                stage_assignment = StageAssignment.objects.filter(
+                    target__id=stage_id,
+                    user=user,
+                    status__in=allowed_statuses  # Проверка по списку допустимых статусов
+                ).first()
+                if not stage_assignment:
+                    print(1)
+                    return Response(
+                        status=status.HTTP_403_FORBIDDEN
+                        # TODO: добавить логирование
+                    )
+            else:
+                # Проверка назначения на проект
+                if project_id:
+                    project_assignment = ProjectAssignment.objects.filter(
+                        target__id=project_id,
+                        user=user,
+                        status__in=allowed_statuses  # Проверка по списку допустимых статусов
+                    ).first()
+                    if not project_assignment:
+                        print(2)
+                        return Response(
+                            status=status.HTTP_403_FORBIDDEN
+                        )
 
-        if stage_id:
-            stage_assignment = StageAssignment.objects.filter(
-                target__id=stage_id,
-                user=user,
-                status=StageAssignment.AssignmentStatus.ACTIVE
-            ).first()
-            if not stage_assignment:
-                return Response(
-                    {"detail": "Access denied. User is not assigned to this stage."},
-                    status=status.HTTP_403_FORBIDDEN
-                )
+            return view_func(request, *args, **kwargs)
 
-        if project_id:
-            project_assignment = ProjectAssignment.objects.filter(
-                target__id=project_id,
-                user=user,
-                status=ProjectAssignment.AssignmentStatus.ACTIVE
-            ).first()
-            if not project_assignment:
-                return Response(
-                    {"detail": "Access denied. User is not assigned to this project."},
-                    status=status.HTTP_403_FORBIDDEN
-                )
+        return _wrapped_view
 
-            #TODO: доделать это с правильной логикой
-
+    return decorator
 
 
 

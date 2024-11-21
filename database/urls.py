@@ -21,6 +21,7 @@ from two_factor.urls import urlpatterns as tf_urls
 
 urlpatterns = [
    path('u/api/', include('users.urls')),
+   path('p/api/', include('projects.urls')),
    path('accounts/', include('django.contrib.auth.urls')),  # Это подключит стандартные URL для логина, логаута и смены пароля
    path('admin/', admin.site.urls),
 ]
