@@ -23,3 +23,12 @@ Content-Type: application/json
 Cookie: refresh_token=<ваш refresh_token>
 
 ###
+
+GET http://127.0.0.1:8000/u/api/role_test/
+Content-Type: application/json
+Cookie: access_token=<ваш access_token>
+Cookie: refresh_token=<ваш refresh_token>
+
+{"role": "ADMIN"}
+
+###

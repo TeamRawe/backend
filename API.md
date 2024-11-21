@@ -1,21 +1,24 @@
 # API
+
 ## USERS
-1. **Авторизация пользователя**\
-URL: ***POST http://127.0.0.1:8000/u/api/login/***
 
-__Описание:__ Принимает email и пароль, выполняет аутентификацию и возвращает user_id и role. Устанавливает токены (access_token и refresh_token) в cookies.
+1. **Авторизация пользователя**  
+   **URL:** `POST http://127.0.0.1:8000/u/api/login/`
 
-Тело запроса:
+   **Описание:**  
+   Принимает `email` и `password`, выполняет аутентификацию пользователя и возвращает `access_token` и `refresh_token` в теле ответа. Токены должны быть использованы в заголовках `Authorization` для дальнейших запросов.
 
-```json
-{
-  "email": "example@domain.com",
-  "password": "your_password"
-}
-```
+   **Тело запроса:**
+
+   ```json
+   {
+     "email": "example@domain.com",
+     "password": "your_password"
+   }
 Пример запроса:
 
-```http
+http
+Copy code
 POST http://127.0.0.1:8000/u/api/login/
 Content-Type: application/json
 
@@ -23,89 +26,130 @@ Content-Type: application/json
   "email": "bajenchik@smradnik.com",
   "password": "pwd1488"
 }
-```
 Ответ при успешной аутентификации (статус 200):
 
-```json
+json
+Copy code
 {
-  "user_id": 123,
+  "access_token": "<ваш access_token>",
+  "refresh_token": "<ваш refresh_token>",
   "role": "user_role"
 }
-```
-__Cookies:__ В ответе API устанавливает access_token и refresh_token в cookies. Эти токены используются для дальнейших запросов, требующих аутентификации.
-
-__Ошибки:__
+Ошибки:
 
 401 Unauthorized: Неверные учетные данные.
-2. **Тестовый публичный эндпоинт**\
-URL: ***GET http://127.0.0.1:8000/u/api/test/***
+403 Forbidden: Суперпользователь не может авторизоваться через этот эндпоинт.
+Примечание:
+Токены (access_token и refresh_token) должны быть переданы в заголовке Authorization в следующем формате:
+Authorization: Bearer <access_token> для запросов, требующих аутентификации.
 
-__Описание:__ Публичный эндпоинт, доступный без авторизации. Возвращает сообщение для тестирования доступности API.
+Тестовый публичный эндпоинт
+URL: GET http://127.0.0.1:8000/u/api/test/
+
+Описание:
+Публичный эндпоинт, доступный без авторизации. Возвращает сообщение для тестирования доступности API.
 
 Пример запроса:
 
-```http
+http
+Copy code
 GET http://127.0.0.1:8000/u/api/test/
 Content-Type: application/json
-```
 Ответ (статус 200):
-```json
+
+json
+Copy code
 {
   "message": "Successful test"
 }
-```
-3. **Защищенный тестовый эндпоинт**\
-URL: ***GET http://127.0.0.1:8000/u/api/secure_test/***
+Защищенный тестовый эндпоинт
+URL: GET http://127.0.0.1:8000/u/api/secure_test/
 
-__Описание:__ Защищенный эндпоинт, доступный только для аутентифицированных пользователей. Требует access_token в cookies.
+Описание:
+Защищенный эндпоинт, доступный только для аутентифицированных пользователей. Требует, чтобы access_token был передан через заголовок Authorization как Bearer токен.
 
 Пример запроса:
 
-```http
+http
+Copy code
 GET http://127.0.0.1:8000/u/api/secure_test/
 Content-Type: application/json
-Cookie: access_token=<ваш access_token>
-```
+Authorization: Bearer <ваш access_token>
 Ответ (статус 200):
 
-```json
+json
+Copy code
 {
   "message": "Successful secure test"
 }
-```
-__Ошибки:__
+Ошибки:
 
 401 Unauthorized: Отсутствует или истек access_token.
-4. **Обновление токена доступа (Refresh)**\
-URL: ***POST http://127.0.0.1:8000/u/api/refresh/***
+Обновление токена доступа (Refresh)
+URL: POST http://127.0.0.1:8000/u/api/refresh/
 
-__Описание:__ Обновляет access_token и refresh_token, используя текущий refresh_token из cookies. Возвращает сообщение о том, что новые токены были установлены.
+Описание:
+Обновляет access_token и refresh_token, используя текущий refresh_token, который передается в теле запроса. Возвращает новые токены в теле ответа.
 
 Пример запроса:
 
-```http
+http
+Copy code
 POST http://127.0.0.1:8000/u/api/refresh/
 Content-Type: application/json
-Cookie: refresh_token=<ваш refresh_token>
-```
+Authorization: Bearer <ваш refresh_token>
 Ответ при успешном обновлении (статус 200):
 
-```json
+json
+Copy code
 {
   "detail": "New tokens have been sent"
 }
-```
-__Cookies:__ В ответе API устанавливает новые access_token и refresh_token в cookies.
+Ошибки:
 
-__Ошибки:__
+400 Bad Request: Отсутствует refresh_token или токен невалиден.
+403 Forbidden: Попытка обновить токены для суперпользователя.
+Общие примечания:
+Токены:
+access_token используется для авторизации защищенных эндпоинтов. Он должен быть передан в заголовке Authorization в формате:
+Authorization: Bearer <access_token>
 
-400 Bad Request: Отсутствует refresh_token в cookies или предоставлен невалидный токен.
-## Общие примечания:
-### Токены:
+refresh_token используется для обновления access_token. Он также передается в заголовке Authorization в формате:
+Authorization: Bearer <refresh_token>.
 
-__access_token__ используется для авторизации защищенных эндпоинтов. Передавайте его в __cookies__.\
-__refresh_token__ используется для обновления __access_token__ и также передается через __cookies__.
-### Безопасность cookies:
+Тест с ограничением по роли (только для администраторов)
+URL: GET http://127.0.0.1:8000/u/api/test_role/
 
-В __production__ режиме токены передаются с флагами __httponly__ и __secure__, что делает их доступными только через HTTPS и защищенными от JavaScript-доступа.\
-__Ошибки:__ В случае недействительных токенов API возвращает статус-коды 401 (Unauthorized) или 400 (Bad Request), с пояснениями в __detail__.
+Описание:
+Этот эндпоинт доступен только пользователям с ролью ADMIN. При успешной авторизации возвращает сообщение, приветствующее пользователя и показывающее его роль.
+Требует передачи действительного access_token в заголовке Authorization как Bearer токен.
+
+Пример запроса:
+
+http
+Copy code
+GET http://127.0.0.1:8000/u/api/test_role/
+Content-Type: application/json
+Authorization: Bearer <ваш access_token>
+Ответ (статус 200):
+
+json
+Copy code
+{
+  "message": "Hello, <user_first_name>! Your role: ADMIN This was a test."
+}
+Ошибки:
+
+401 Unauthorized: Отсутствует или истек access_token.
+403 Forbidden: Пользователь не имеет права выполнять этот запрос (если у него нет роли ADMIN).
+
+Безопасность токенов:
+Токены должны передаваться через защищенные каналы (например, через HTTPS).
+В production режиме важно использовать флаг secure для передачи токенов через HTTPS, чтобы предотвратить перехват токенов.
+Ошибки:
+В случае недействительных токенов API возвращает статус-коды:
+401 Unauthorized: Неверные или отсутствующие токены.
+400 Bad Request: Невалидные токены.
+403 Forbidden: Попытка выполнения операции для суперпользователя, которая не разрешена для обычных пользователей.
+go
+Copy code
