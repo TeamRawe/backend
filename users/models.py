@@ -16,6 +16,15 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    def create_superuser(self, email, password, first_name, last_name, phone, passport, **extra_fields):
+
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_user(email, password, first_name, last_name, phone, passport, **extra_fields)
+
+
 
 class User(AbstractUser):
     id = models.UUIDField(

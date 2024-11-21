@@ -32,7 +32,13 @@ SECRET_KEY = 'django-insecure-pgpp!$od9r+4u1(=0mz2=h1_(zd5nd-9!vcl2#yoba)s(513$d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+INTERNAL_IPS = [
+    '127.0.0.1',  # Локальный доступ
+    '192.168.0.0/16',  # Пример диапазона для локальной сети
+]
+
 
 
 # Application definition
@@ -45,6 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_otp',
+    'two_factor',
     'phonenumber_field',
     'users',
     'contractors',
@@ -59,6 +67,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_otp.middleware.OTPMiddleware',
+    'database.middleware.LANAccessMiddleware'
 ]
 
 ROOT_URLCONF = 'database.urls'
@@ -161,7 +171,7 @@ ALLOWED_FILE_EXTENSIONS = ['pdf',
 # Настройки аутентификации
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'database.auth.CookieJWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -208,3 +218,4 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
