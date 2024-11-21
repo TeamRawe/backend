@@ -18,7 +18,7 @@ Cookie: access_token=<ваш access_token>
 
 ###
 
-POST http://127.0.0.1:8000/u/api/refresh/
+POST http://127.0.0.1:8000/u/api/logout/
 Content-Type: application/json
 Cookie: refresh_token=<ваш refresh_token>
 
