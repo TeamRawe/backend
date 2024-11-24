@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',
     'django_otp',
     'two_factor',
     'phonenumber_field',
@@ -142,7 +141,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Убедитесь, что BASE_DIR верно настроен
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -182,9 +185,11 @@ REST_FRAMEWORK = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Стандартная сессия через базу данных
 SESSION_COOKIE_NAME = 'sessionid'  # Название cookie для сессии
 SESSION_COOKIE_SECURE = not (DEBUG)  # Использование HTTPS для cookies (важно для продакшн)
-SESSION_COOKIE_HTTPONLY = True  # Защищает cookie от доступа через JavaScript
+SESSION_COOKIE_HTTPONLY = False  # Защищает cookie от доступа через JavaScript
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Закрытие браузера = выход из системы
 CSRF_COOKIE_SECURE = not (DEBUG)  # Защита от CSRF при передаче через HTTPS
-CSRF_COOKIE_HTTPONLY = True  # Защита от XSS атак
+CSRF_COOKIE_HTTPONLY = False  # Защита от XSS атак
 CSRF_TRUSTED_ORIGINS = ['https://yourdomain.com']  # Можно указать доверенные источники
 CSRF_COOKIE_NAME = "csrftoken"
+
+
