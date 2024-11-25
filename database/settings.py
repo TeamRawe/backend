@@ -27,10 +27,10 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-pgpp!$od9r+4u1(=0mz2=h1_(zd5nd-9!vcl2#yoba)s(513$d'
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = ['*']
 
@@ -194,3 +194,4 @@ CSRF_TRUSTED_ORIGINS = ['https://yourdomain.com']  # Можно указать �
 CSRF_COOKIE_NAME = "csrftoken"
 
 
+ADMIN_URL = 'admin/'
