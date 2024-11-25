@@ -180,6 +180,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',  # Оставляем для проверки авторизации
     ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Стандартная сессия через базу данных

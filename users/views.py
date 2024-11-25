@@ -49,7 +49,7 @@ def secure_test(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-@role_required(['ADMIN'])
+@role_required(['ADMIN','RULER','PROJECT_MANAGER','STAGE_MANAGER'])
 def test_role(request):
     user = request.user
     # noinspection PyUnresolvedReferences
