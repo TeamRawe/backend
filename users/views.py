@@ -6,6 +6,8 @@ from .serializers import ReadUserSerializer, UserCreateSerializer, UserUpdateSer
 from rest_framework import viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from .models import User
+from django.http import JsonResponse
+from django.middleware.csrf import get_token
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -38,7 +40,16 @@ def logout_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def test(request):
-    return Response({"message": "Successful test"}, status=status.HTTP_200_OK)
+    csrf_token = get_token(request)  # Генерация CSRF токена
+    response = JsonResponse({'message': 'CSRF cookie set successfully'})  # Ответ клиенту
+    response.set_cookie(  # Устанавливаем токен в куки
+        key='csrftoken',
+        value=csrf_token,
+        httponly=False,  # Не делаем токен HttpOnly, чтобы JavaScript мог его использовать (если нужно)
+        secure=False,  # Включите True для HTTPS в продакшн
+        samesite='Lax'  # Настройка SameSite для предотвращения CSRF атак
+    )
+    return response
 
 
 @api_view(['GET'])
