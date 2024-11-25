@@ -1,0 +1,20 @@
+<!-- templates/admin/base_site.html -->
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrahead %}
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/new_admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <!-- Убираем ссылку на сайт -->
+  <h1 id="site-name">ИСВС Администрация</h1>
+{% endblock %}
+
+{% block userlinks %}
+    <div class="user-tools">
+        <a href="{% url 'admin_logout' %}">Log out</a> <!-- Используем кастомный путь для выхода -->
+     <!-- <a href="{% url 'admin:index' %}" class="view-site-link">View Site</a> -->
+    </div>
+{% endblock %}

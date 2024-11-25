@@ -59,7 +59,7 @@
     .then(response => response.json())
     .then(data => {
         if (data.message) {
-            window.location.href = '/u/a/administration';  // Перенаправление на админку после успешного входа
+            window.location.href = '/u/a/';  // Перенаправление на админку после успешного входа
         } else {
             document.getElementById('error-message').style.display = 'block';  // Показать ошибку
         }

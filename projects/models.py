@@ -5,7 +5,7 @@ from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 from database.settings import ALLOWED_FILE_EXTENSIONS
 from datetime import datetime
-
+from django.utils import timezone
 
 # Create your models here.
 
@@ -19,6 +19,7 @@ class File(models.Model):
     stage = models.ForeignKey(
         'Stage', on_delete=models.PROTECT, related_name='files', null=True, blank=True
     )
+    created_at = models.DateTimeField(default=timezone.now)
 
     class FileCategory(models.TextChoices):
         IMAGE = 'IMAGE', 'Изображение'

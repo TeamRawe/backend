@@ -1,0 +1,35 @@
+/* Используем шрифт Montserrat для админки */
+body {
+    font-family: 'Montserrat', sans-serif;  /* Применяем шрифт ко всему сайту */
+}
+
+.header, .footer {
+    background-color: #005f73;  /* Фон заголовка и подвала */
+    color: white;
+}
+
+#site-name {
+    font-weight: bold;  /* Жирный шрифт для заголовка */
+    font-size: 30px;  /* Размер шрифта */
+    color: #ff9f00;  /* Цвет заголовка */
+    text-transform: uppercase;  /* Заглавные буквы */
+}
+
+.module h2 {
+    color: #ff9f00;  /* Цвет заголовков модулей */
+}
+
+/* Кастомизация кнопок */
+.button {
+    background-color: #ff9f00;  /* Цвет кнопок */
+    color: white;  /* Цвет текста на кнопках */
+}
+
+/* Прячем стандартный логотип и кнопку "View Site" */
+#site-name {
+    display: block;
+}
+
+.user-tools a[href="/"] {
+    display: none;
+}

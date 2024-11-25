@@ -50,6 +50,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+    @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 @permission_classes([IsAuthenticated])
 class StageViewSet(viewsets.ModelViewSet):
     queryset = Stage.objects.all()
@@ -83,6 +87,10 @@ class StageViewSet(viewsets.ModelViewSet):
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+    @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 @permission_classes([IsAuthenticated])
 class FileViewSet(viewsets.ModelViewSet):
@@ -119,6 +127,10 @@ class FileViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         raise MethodNotAllowed("DELETE", detail="Удаление файлов запрещено")
 
+    @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 @permission_classes([IsAuthenticated])
 class ProjectAssignmentViewSet(viewsets.ModelViewSet):
@@ -149,6 +161,10 @@ class ProjectAssignmentViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         raise MethodNotAllowed("DELETE", detail="Удаление назначений запрещено")
 
+    @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 @permission_classes([IsAuthenticated])
 class StageAssignmentViewSet(viewsets.ModelViewSet):
@@ -178,3 +194,7 @@ class StageAssignmentViewSet(viewsets.ModelViewSet):
     @role_required([])
     def destroy(self, request, *args, **kwargs):
         raise MethodNotAllowed("DELETE", detail="Удаление назначений запрещено")
+
+    @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)

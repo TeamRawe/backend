@@ -1,0 +1,36 @@
+
+services:
+  # PostgreSQL контейнер
+  db:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: BMSTU_br0ke_my_l1fe
+      POSTGRES_DB: gorder_db_d
+    ports:
+      - "5433:5432"
+  # Django контейнер
+  web:
+    build: .
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_NAME=gorder_db_d
+      - DB_USER=db_user
+      - DB_HOST=db
+      - DB_PORT=5432
+      - ENC_KEY=ACS-XaHd42CxjeYpRL3EMCxHVRRZh7rX7GDY11z-1eY=
+      - LAN_IPS=192.168.0.0/16
+      - DJANGO_SECRET_KEY="django-insecure-pgpp!$od9r+4u1(=0mz2=h1_(zd5nd-9!vcl2#yoba)s(513$d"
+      - DEBUG=True
+
+
+volumes:
+  postgres_data:
