@@ -39,23 +39,15 @@ class ProjectAdmin(admin.ModelAdmin):
     )
 
 class StageAdmin(admin.ModelAdmin):
-    list_display = ('number', 'title', 'start_date', 'end_date', 'status', 'planned_cost', 'project')
+    list_display = ('title','number', 'start_date', 'end_date', 'status', 'planned_cost', 'project')
     search_fields = ('number', 'title', 'project__title', 'start_date', 'end_date')
     list_filter = ('status', 'start_date', 'end_date', 'project')
     ordering = ('number',)
 
     fieldsets = (
         (None, {
-            'fields': ('number', 'title', 'start_date', 'end_date', 'status', 'planned_cost', 'project', 'parent_stage')
+            'fields': ('title', 'start_date', 'end_date', 'status', 'planned_cost', 'project', 'parent_stage')
         }),
-        # Удалили повторение 'planned_cost'
-        # (_('Financial'), {
-        #     'fields': ('planned_cost',),
-        # }),
-        # Удалили повторение 'status'
-        # (_('Status'), {
-        #     'fields': ('status',),
-        # }),
     )
 
 
