@@ -1,0 +1,110 @@
+/* Общие стили */
+body {
+    font-family: Montserrat, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;  /* Применяем жирный шрифт ко всем заголовкам /* Подчеркиваем заголовки */
+}
+
+.apps-name {
+    font-weight: bold; /* Жирное начертание */
+    color: #061C42; /* Цвет текста */
+    text-transform: uppercase; /* Преобразуем в верхний регистр */
+    font-size: 30px;  /* Размер шрифта заголовка */
+
+}
+/* Навигационная панель */
+.navbar {
+    width: 100%;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(270deg, #0E2559 0%, #0C4D66 50.4%, #0A7774 100%);
+}
+
+.navbar .navbar-brand {
+    font-size: 60px;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-left: 15px;
+}
+
+.navbar .navbar-admin {
+    font-size: 30px;
+    margin-left: 30px;
+    font-weight: 500;
+}
+
+.navbar .btn-logout {
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: auto;
+    text-transform: uppercase;
+
+}
+
+.navbar .btn-logout:hover {
+    color: #0FBBB6;
+
+}
+
+/* Контент админки */
+.admin-content {
+    padding: 20px;
+    width: 80%;
+    max-width: 1200px;
+   margin-right: auto;
+    margin-left: 30px;
+}
+
+.app-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.app-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 30%;
+    text-align: center;
+}
+
+.app-card h2 {
+    font-size: 24px;
+    color: #061C42;
+}
+
+.app-card p {
+    font-size: 16px;
+    color: #555;
+}
+
+.app-card .btn-view {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #FEDF6A;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.app-card .btn-view:hover {
+    background-color: #0FBBB6;
+}

@@ -1,0 +1,73 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ИСВС</title>
+     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <!-- Подключаем CSS -->
+     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <form id="loginForm">
+        <h1>ИСВС</h1>
+        {% csrf_token %}
+        <label for="email">электронная почта</label>
+        <input type="email" id="email" name="email" required>
+        <br><br>
+
+        <label for="password">пароль</label>
+        <input type="password" id="password" name="password" required>
+        <br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <div id="error-message" style="color: red; display: none;">Неверные данные</div>
+
+
+    <script>
+        function getCSRFToken() {
+    if (!document.cookie) {
+        return null;
+    }
+    const xsrfCookies = document.cookie.split(';')
+    .map(c => c.trim())
+    .filter(c => c.startsWith('csrftoken' + '='));
+
+    if (xsrfCookies.length === 0) {
+        return null;
+    }
+    return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+}
+       document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    fetch('http://127.0.0.1:8000/u/a/api/login/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ email: email, password: password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            window.location.href = '/u/a/administration';  // Перенаправление на админку после успешного входа
+        } else {
+            document.getElementById('error-message').style.display = 'block';  // Показать ошибку
+        }
+    })
+    .catch(error => {
+        document.getElementById('error-message').style.display = 'block';  // Показать ошибку
+    });
+});
+    </script>
+</body>
+</html>

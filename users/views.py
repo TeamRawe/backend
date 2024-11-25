@@ -1,8 +1,11 @@
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .role_restrictons import *
-
+from .permissions import *
+from .serializers import ReadUserSerializer, UserCreateSerializer, UserUpdateSerializer
+from rest_framework import viewsets
+from rest_framework.exceptions import MethodNotAllowed
+from .models import User
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -46,8 +49,42 @@ def secure_test(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-@role_required(['ADMIN'])
+@role_required(['ADMIN','RULER','PROJECT_MANAGER','STAGE_MANAGER'])
 def test_role(request):
     user = request.user
     # noinspection PyUnresolvedReferences
     return Response({"message": f"Hello, {user.first_name}! Your role: {user.role} This was a test."})
+@permission_classes([IsAuthenticated])
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCreateSerializer
+        elif self.action in ['update', 'partial_update']:
+            return UserUpdateSerializer
+        return ReadUserSerializer
+    @only_for_self(['STAGE_MANAGER', 'PROJECT_MANAGER'])
+    def retrieve(self, request, *args, **kwargs):
+        # Декоратор ограничит доступ к методу retrieve для указанных ролей
+        return super().retrieve(request, *args, **kwargs)
+
+    @role_required(['ADMIN'])
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @role_required(['ADMIN'])
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @role_required([])
+    def destroy(self, request, *args, **kwargs):
+        raise MethodNotAllowed("DELETE",
+                               detail="Удаление пользователя запрещено. Вместо этого можно деактивировать пользователя.")
+    @role_required(['ADMIN'])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+
+
+

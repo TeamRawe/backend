@@ -1,0 +1,81 @@
+/* Общие стили */
+body {
+    font-family: Montserrat, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;  /* Применяем жирный шрифт ко всем заголовкам */
+    text-decoration: underline;  /* Подчеркиваем заголовки */
+}
+
+h1 {
+    font-weight: bold; /* Жирное начертание */
+    text-decoration: underline; /* Подчеркнутый текст */
+    color: #061C42; /* Цвет текста */
+    text-transform: uppercase; /* Преобразуем в верхний регистр */
+    font-size: 60px;  /* Размер шрифта заголовка */
+}
+
+/* Форма */
+form {
+    flex-direction: column;
+    background-color: #E7F4FF;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+    color: #061C42; /* Цвет текста */
+    text-transform: uppercase;
+}
+
+
+/* Поля ввода */
+input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    box-sizing: border-box;
+    font-size: 20px;
+}
+
+/* Кнопка */
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #FEDF6A;
+     color: #061C42;
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: Montserrat, sans-serif;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background: #0FBBB6;
+    color: white;
+    text-decoration: underline;
+}
+
+/* Сообщение об ошибке */
+#error-message {
+    color: red;
+    display: none;
+    margin-top: 15px;
+    flex-direction: column;
+}

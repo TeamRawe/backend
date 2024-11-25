@@ -14,14 +14,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path, include
-from two_factor.urls import urlpatterns as tf_urls
 
 
 urlpatterns = [
+   path('u/a/', include('users.admin_urls')),
    path('u/api/', include('users.urls')),
    path('p/api/', include('projects.urls')),
-   path('accounts/', include('django.contrib.auth.urls')),  # Это подключит стандартные URL для логина, логаута и смены пароля
-   path('admin/', admin.site.urls),
+   path('c/api', include('contractors.urls'))
 ]

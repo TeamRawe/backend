@@ -1,0 +1,68 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Административная панель - ИСВС</title>
+    <link rel="stylesheet" href="{% static 'css/admin_style.css' %}">
+</head>
+<body>
+{% csrf_token %}
+    <!-- Навигационная панель -->
+    <nav class="navbar">
+            <span class="navbar-brand">ИСВС</span>
+            <span class="navbar-admin">Администрирование платформы</span>
+            <span id="logout-btn" class="btn-logout">Выход</span>
+    </nav>
+
+    <!-- Основное содержание -->
+    <div class="admin-content">
+        <h1 class="apps-name">Доступные приложения </h1>
+        <div class="app-list">
+            {% for app in app_list %}
+                <div class="app-card">
+                    <h2>{{ app.name }}</h2>
+                    <p>{{ app.description }}</p>
+                    <a href="{{ app.url }}" class="btn-view">Перейти</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        function getCSRFToken() {
+    if (!document.cookie) {
+        return null;
+    }
+    const xsrfCookies = document.cookie.split(';')
+    .map(c => c.trim())
+    .filter(c => c.startsWith('csrftoken' + '='));
+
+    if (xsrfCookies.length === 0) {
+        return null;
+    }
+    return decodeURIComponent(xsrfCookies[0].split('=')[1]);
+}
+        document.getElementById("logout-btn").addEventListener("click", function() {
+
+    fetch("/u/a/api/logout/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = "/u/a/login/";  // Перенаправление на страницу входа
+        } else {
+            console.error('Ошибка при выходе');
+        }
+    })
+    .catch(error => console.error('Ошибка:', error));
+});
+    </script>
+</body>
+</html>
