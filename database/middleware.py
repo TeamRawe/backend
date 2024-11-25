@@ -13,3 +13,4 @@ class LANAccessMiddleware:
                 return HttpResponseNotFound()
         response = self.get_response(request)
         return response
+

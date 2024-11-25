@@ -83,7 +83,6 @@ class File(models.Model):
 
         # TODO: В будущем добавим проверку на вирусы через magic (redis + celery)
         # Проверка на вирусы будет выполняться здесь перед сохранением
-
         super().save(*args, **kwargs)
 
     def clean(self):

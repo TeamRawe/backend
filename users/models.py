@@ -37,6 +37,7 @@ class User(AbstractUser):
     passport = EncryptedCharField()
     phone = PhoneNumberField(blank=False, null=False)
     email = models.EmailField("email address", unique=True, blank=False, null=False)
+    username = models.CharField(max_length=150, blank=True, null=True)
 
     class Role(models.TextChoices):
         ADMIN = 'ADMIN', 'Администратор'
