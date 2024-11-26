@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'django_otp',
     'two_factor',
     'phonenumber_field',
@@ -71,7 +72,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_otp.middleware.OTPMiddleware',
-    'database.middleware.LANAccessMiddleware'
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.locale.LocaleMiddleware'
 ]
 
 ROOT_URLCONF = 'database.urls'
@@ -202,3 +204,7 @@ ADMIN_URL = 'admin/'
 SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
 
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5012", "https://127.0.0.1:7065"
+]
+CORS_ALLOW_CREDENTIALS = True
