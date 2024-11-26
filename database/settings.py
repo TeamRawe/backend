@@ -36,7 +36,8 @@ ALLOWED_HOSTS = ['*']
 
 INTERNAL_IPS = [
     '127.0.0.1',  # Локальный доступ
-    '192.168.0.0/16',  # Пример диапазона для локальной сети
+    '192.168.0.0/16',
+    'localhost'# Пример диапазона для локальной сети
 ]
 
 
@@ -44,6 +45,8 @@ INTERNAL_IPS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_interface',
+    'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -129,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'Europe/Moscow'
 
@@ -198,3 +201,4 @@ ADMIN_URL = 'admin/'
 
 SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
+

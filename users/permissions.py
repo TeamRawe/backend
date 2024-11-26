@@ -9,20 +9,20 @@ from rest_framework.exceptions import PermissionDenied
 def role_required(allowed_roles):
     def decorator(view_func):
         @wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
+        def _wrapped_view(self, request, *args, **kwargs):
             user = request.user
             if user.role not in allowed_roles:
                 return Response({"detail": "Access denied. Insufficient role."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-            return view_func(request, *args, **kwargs)
+            return view_func(self, *args, **kwargs)
         return _wrapped_view
     return decorator
 
 def assignment_required(allowed_statuses):
     def decorator(view_func):
         @wraps(view_func)
-        def _wrapped_view(request, *args, **kwargs):
+        def _wrapped_view(self, request, *args, **kwargs):
             user = request.user
             project_id = kwargs.get('project_id')
             stage_id = kwargs.get('stage_id')
@@ -56,7 +56,7 @@ def assignment_required(allowed_statuses):
                         status=status.HTTP_403_FORBIDDEN
                     )
 
-            return view_func(request, *args, **kwargs)
+            return view_func(self, *args, **kwargs)
 
         return _wrapped_view
 

@@ -47,7 +47,7 @@ def test(request):
         value=csrf_token,
         httponly=False,  # Не делаем токен HttpOnly, чтобы JavaScript мог его использовать (если нужно)
         secure=False,  # Включите True для HTTPS в продакшн
-        samesite='Lax'  # Настройка SameSite для предотвращения CSRF атак
+        samesite='None'  # Настройка SameSite для предотвращения CSRF атак
     )
     return response
 
