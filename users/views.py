@@ -9,10 +9,6 @@ from .models import User
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from database.logger import logger
-from django.contrib.sessions.models import Session
-from django.views.decorators.csrf import csrf_protect
-from django.utils.timezone import now
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -39,7 +35,9 @@ def login_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
-    logout(request)  # Удаляет сессию и cookie с браузера пользователя
+    user = request.user
+    logout(request)
+    logger.info(f"Успешный выход пользователя {user.email} от {request.META.get('REMOTE_ADDR')}")
     return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
 
 
@@ -62,15 +60,18 @@ def test(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def secure_test(request):
+    user = request.user
+    logger.info(f"Запрос к защищённому тесту. Пользователь: {user.email} от {request.META.get('REMOTE_ADDR')}")
     return Response({"message": "Successful secure test"}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-@role_required(['ADMIN', 'RULER', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
+@role_required(['ADMIN','RULER','PROJECT_MANAGER','STAGE_MANAGER'])
 def test_role(request):
     user = request.user
     # noinspection PyUnresolvedReferences
+    logger.info(f"Проверка роли пользователя {user.email}, Роль: {user.role}, для {request.META.get('REMOTE_ADDR')}")
     return Response({"message": f"Hello, {user.first_name}! Your role: {user.role} This was a test."})
 
 
@@ -83,6 +84,7 @@ def check_session(request):
 
     if not session_id:
         # Если куки нет, возвращаем ошибку
+        logger.warn(f"Проверка сессии не удалась, нет куки для {request.META.get('REMOTE_ADDR')}")
         return JsonResponse({'error': 'Session ID not found in cookies'}, status=400)
 
     try:
@@ -91,13 +93,16 @@ def check_session(request):
 
         # Проверяем, не истекла ли сессия
         if session.expire_date < now():
+            logger.info(f"Сессия истекла для {request.META.get('REMOTE_ADDR')}")
             return JsonResponse({'error': 'Session expired'}, status=401)
 
         # Если сессия валидна, возвращаем 200 OK
+        logger.info(f"Сессия валидна для {request.META.get('REMOTE_ADDR')}")
         return JsonResponse({'message': 'Session is valid'}, status=200)
 
     except Session.DoesNotExist:
         # Если сессия не найдена, возвращаем ошибку
+        logger.warn(f"Сессия не найдена для {request.META.get('REMOTE_ADDR')}")
         return JsonResponse({'error': 'Invalid session ID'}, status=401)
 
 
@@ -115,25 +120,36 @@ class UserViewSet(viewsets.ModelViewSet):
     @only_for_self(['STAGE_MANAGER', 'PROJECT_MANAGER'])
     def retrieve(self, request, *args, **kwargs):
         # Декоратор ограничит доступ к методу retrieve для указанных ролей
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
-        raise MethodNotAllowed("DELETE",
-                               detail="Удаление пользователя запрещено. Вместо этого можно деактивировать пользователя.")
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
+        raise MethodNotAllowed("DELETE", detail="Удаление пользователя запрещено. Вместо этого можно деактивировать пользователя.")
 
     @role_required(['ADMIN'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
-    @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
+    @role_required(['ADMIN'])
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
