@@ -35,7 +35,9 @@ def login_view(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
-    logout(request)  # Удаляет сессию и cookie с браузера пользователя
+    user = request.user
+    logout(request)
+    logger.info(f"Успешный выход пользователя {user.email} от {request.META.get('REMOTE_ADDR')}")
     return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
 
 
@@ -58,6 +60,8 @@ def test(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def secure_test(request):
+    user = request.user
+    logger.info(f"Запрос к защищённому тесту. Пользователь: {user.email} от {request.META.get('REMOTE_ADDR')}")
     return Response({"message": "Successful secure test"}, status=status.HTTP_200_OK)
 
 
@@ -67,7 +71,10 @@ def secure_test(request):
 def test_role(request):
     user = request.user
     # noinspection PyUnresolvedReferences
+    logger.info(f"Проверка роли пользователя {user.email}, Роль: {user.role}, для {request.META.get('REMOTE_ADDR')}")
     return Response({"message": f"Hello, {user.first_name}! Your role: {user.role} This was a test."})
+
+
 @permission_classes([IsAuthenticated])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -78,31 +85,40 @@ class UserViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return UserUpdateSerializer
         return ReadUserSerializer
+
     @only_for_self(['STAGE_MANAGER', 'PROJECT_MANAGER'])
     def retrieve(self, request, *args, **kwargs):
         # Декоратор ограничит доступ к методу retrieve для указанных ролей
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
-        raise MethodNotAllowed("DELETE",
-                               detail="Удаление пользователя запрещено. Вместо этого можно деактивировать пользователя.")
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
+        raise MethodNotAllowed("DELETE", detail="Удаление пользователя запрещено. Вместо этого можно деактивировать пользователя.")
+
     @role_required(['ADMIN'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
-    @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
+    @role_required(['ADMIN'])
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
-
-
-
-
