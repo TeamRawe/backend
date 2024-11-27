@@ -3,6 +3,7 @@ from contractors.models import *
 from users.models import User
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from database.settings import ALLOWED_FILE_EXTENSIONS
 from datetime import datetime
 from django.utils import timezone
@@ -29,6 +30,14 @@ class File(models.Model):
 
     category = models.CharField(
         max_length=20, choices=FileCategory.choices, blank=True, null=True, help_text="Категория файла"
+    )
+
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="file_created",
+        help_text="Пользователь, создавший этот объект",
+        null=True
     )
 
     def dynamic_file_path(instance, filename):
@@ -111,11 +120,19 @@ class Project(models.Model):
     # Связь с госкомпанией - заказчиком проекта
     customer = models.ForeignKey(GovernmentalCompany, null=True, on_delete=models.PROTECT, related_name="projects")
 
+    progress = models.PositiveIntegerField(
+        default=0,
+        help_text="Процент выполнения проекта",
+        validators=[MinValueValidator(0), MaxValueValidator(100)]  # Ограничиваем значение от 0 до 100
+    )
+
     def clean(self):
         if self.end_date < self.start_date:
             raise ValidationError("Дата окончания не может быть раньше даты начала.")
         if self.planned_cost < 0:
             raise ValidationError("Плановый бюджет не может быть отрицательным.")
+        if self.progress < 0 or self.progress > 100:
+            raise ValidationError("Процент выполнения должен быть в пределах от 0 до 100.")
 
     class ProjectStatus(models.TextChoices):
         ARCHIVED = 'ARCHIVED', 'В архиве'
@@ -130,6 +147,13 @@ class Project(models.Model):
         choices=ProjectStatus.choices,
         default=ProjectStatus.PLANNED,
         help_text='Состояние проекта'
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="project_created",
+        help_text="Пользователь, создавший этот объект",
+        null=True
     )
 
     def __str__(self):
@@ -156,11 +180,19 @@ class Stage(models.Model):
     end_date = models.DateField()
     planned_cost = models.DecimalField(max_digits=10, decimal_places=2)
 
+    progress = models.PositiveIntegerField(
+        default=0,
+        help_text="Процент выполнения проекта",
+        validators=[MinValueValidator(0), MaxValueValidator(100)]  # Ограничиваем значение от 0 до 100
+    )
+
     def clean(self):
         if self.end_date < self.start_date:
             raise ValidationError("Дата окончания не может быть раньше даты начала.")
         if self.planned_cost < 0:
             raise ValidationError("Плановый бюджет не может быть отрицательным.")
+        if self.progress < 0 or self.progress > 100:
+            raise ValidationError("Процент выполнения должен быть в пределах от 0 до 100.")
 
     class StageStatus(models.TextChoices):
         APPROVED = 'APPROVED', 'Проект сдан'
@@ -177,6 +209,14 @@ class Stage(models.Model):
     )
 
     number = models.CharField(max_length=20, blank=True, null=False)
+
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="stage_created",
+        help_text="Пользователь, создавший этот объект",
+        null=True
+    )
 
     def save(self, *args, **kwargs):
         # Генерация номера этапа
@@ -265,7 +305,13 @@ class ProjectAssignment(AssignmentBase):
                              blank=True,
                              help_text='Назначения на проект или этап'
                              )
-
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="project_assignment_created",
+        help_text="Пользователь, создавший этот объект",
+        null=True
+    )
     def __str__(self):
         return super().__str__()
 
@@ -283,5 +329,118 @@ class StageAssignment(AssignmentBase):
                              help_text='Назначения на проект или этап'
                              )
 
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="stage_assignment_created",
+        help_text="Пользователь, создавший этот объект",
+        null=True
+    )
+
     def __str__(self):
         return super().__str__()
+
+
+from django.db import models
+from django.core.exceptions import ValidationError
+import uuid
+
+class StageReport(models.Model):
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    title = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False,
+        help_text="Название отчета этапа"
+    )
+    commentary = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Описание отчета этапа"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Связь с этапом
+    stage = models.ForeignKey(
+        'Stage',
+        on_delete=models.PROTECT,
+        related_name='stage_reports',
+        null=True,
+        blank=True,
+        help_text="Этап, к которому привязан отчет"
+    )
+
+    # Связь с файлами
+    files = models.ManyToManyField(
+        'File',
+        related_name='stage_reports',
+        help_text="Файлы, связанные с отчетом этапа"
+    )
+
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="stage_reports_created",
+        help_text="Пользователь, создавший этот объект",
+        null=True
+    )
+
+    def __str__(self):
+        return f"{self.title}"
+
+    def clean(self):
+        # Проверка, что отчет связан хотя бы с одним этапом
+        if not self.stage:
+            raise ValidationError("Отчет этапа должен быть связан хотя бы с одним этапом.")
+
+class ProjectReport(models.Model):
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
+    )
+    title = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False,
+        help_text="Название отчета этапа"
+    )
+    commentary = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Описание отчета этапа"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Связь с этапом
+    project = models.ForeignKey(
+        'Project',
+        on_delete=models.PROTECT,
+        related_name='project_reports',
+        null=True,
+        blank=True,
+        help_text="Проект, к которому привязан отчет"
+    )
+
+    # Связь с файлами
+    files = models.ManyToManyField(
+        'File',
+        related_name='project_reports',
+        help_text="Файлы, связанные с отчетом проекта"
+    )
+
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="project_reports_created",
+        help_text="Пользователь, создавший этот объект",
+        null=True
+    )
+
+    def __str__(self):
+        return f"{self.title}"
+
+    def clean(self):
+        # Проверка, что отчет связан хотя бы с одним этапом
+        if not self.project:
+            raise ValidationError("Отчет этапа должен быть связан хотя бы с одним этапом.")

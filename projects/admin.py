@@ -24,14 +24,14 @@ class FileAdmin(admin.ModelAdmin):
 
 # Админка для модели Project
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title', 'customer', 'start_date', 'end_date', 'status', 'planned_cost')
+    list_display = ('title', 'customer','progress', 'start_date', 'end_date', 'status', 'planned_cost')
     search_fields = ('title', 'customer__title', 'start_date', 'end_date', 'status')
     list_filter = ('status', 'start_date', 'end_date', 'customer')
     ordering = ('-start_date',)
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'description', 'status', 'planned_cost', 'customer')
+            'fields': ('title', 'description','progress', 'status', 'planned_cost', 'customer')
         }),
         (_('Dates'), {
             'fields': ('start_date', 'end_date'),
@@ -39,14 +39,14 @@ class ProjectAdmin(admin.ModelAdmin):
     )
 
 class StageAdmin(admin.ModelAdmin):
-    list_display = ('title','number', 'start_date', 'end_date', 'status', 'planned_cost', 'project')
+    list_display = ('title','number','progress', 'start_date', 'end_date', 'status', 'planned_cost', 'project')
     search_fields = ('number', 'title', 'project__title', 'start_date', 'end_date')
     list_filter = ('status', 'start_date', 'end_date', 'project')
     ordering = ('number',)
 
     fieldsets = (
         (None, {
-            'fields': ('title', 'start_date', 'end_date', 'status', 'planned_cost', 'project', 'parent_stage')
+            'fields': ('title','progress', 'start_date', 'end_date', 'status', 'planned_cost', 'project', 'parent_stage')
         }),
     )
 
