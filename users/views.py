@@ -75,6 +75,37 @@ def test_role(request):
     return Response({"message": f"Hello, {user.first_name}! Your role: {user.role} This was a test."})
 
 
+@api_view(['GET'])
+@csrf_protect
+@permission_classes([AllowAny])
+def check_session(request):
+    # Получаем session ID из куки
+    session_id = request.COOKIES.get('sessionid')
+
+    if not session_id:
+        # Если куки нет, возвращаем ошибку
+        logger.warn(f"Проверка сессии не удалась, нет куки для {request.META.get('REMOTE_ADDR')}")
+        return JsonResponse({'error': 'Session ID not found in cookies'}, status=400)
+
+    try:
+        # Проверяем, существует ли сессия с таким ID
+        session = Session.objects.get(session_key=session_id)
+
+        # Проверяем, не истекла ли сессия
+        if session.expire_date < now():
+            logger.info(f"Сессия истекла для {request.META.get('REMOTE_ADDR')}")
+            return JsonResponse({'error': 'Session expired'}, status=401)
+
+        # Если сессия валидна, возвращаем 200 OK
+        logger.info(f"Сессия валидна для {request.META.get('REMOTE_ADDR')}")
+        return JsonResponse({'message': 'Session is valid'}, status=200)
+
+    except Session.DoesNotExist:
+        # Если сессия не найдена, возвращаем ошибку
+        logger.warn(f"Сессия не найдена для {request.META.get('REMOTE_ADDR')}")
+        return JsonResponse({'error': 'Invalid session ID'}, status=401)
+
+
 @permission_classes([IsAuthenticated])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

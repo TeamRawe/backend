@@ -120,27 +120,71 @@ class ProjectReportSerializer(serializers.ModelSerializer):
 
 class StageReportCreateSerializer(serializers.ModelSerializer):
     files = serializers.PrimaryKeyRelatedField(queryset=File.objects.all(), many=True)
+    budget = serializers.DecimalField(max_digits=10, decimal_places=2, required=False,
+                                      allow_null=True)  # Необязательное поле для бюджета
 
     class Meta:
         model = StageReport
-        fields = ['title', 'commentary', 'stage', 'files']
+        fields = ['title', 'commentary', 'stage', 'files', 'budget']
+
+    def validate_budget(self, value):
+        """
+        Проверка, что бюджет не превышает бюджет связанного этапа.
+        """
+        if value is not None:
+            stage_instance = self.initial_data.get('stage')
+            stage = Stage.objects.get(id=stage_instance)  # Получаем экземпляр Stage по ID
+            if value > stage.budget:
+                raise serializers.ValidationError(f"Бюджет не может превышать бюджет этапа ({stage.budget}).")
+        return value
 
     def create(self, validated_data):
+        """
+        Создание нового отчета.
+        """
         files_data = validated_data.pop('files', [])
+        # Устанавливаем статус по умолчанию
+        validated_data['status'] = 'PENDING'
+
+        # Создаем StageReport
         stage_report = StageReport.objects.create(**validated_data)
-        stage_report.files.set(files_data)  # Link files to the report
+
+        # Привязываем файлы к отчету
+        stage_report.files.set(files_data)
+
+        # Возвращаем созданный объект
         return stage_report
 
 
-class ProjectReportCreateSerializer(serializers.ModelSerializer):
+class ProjectCreateSerializer(serializers.ModelSerializer):
     files = serializers.PrimaryKeyRelatedField(queryset=File.objects.all(), many=True)
 
     class Meta:
-        model = ProjectReport
-        fields = ['title', 'commentary', 'project', 'files']
+        model = Project
+        fields = ['title', 'description', 'stage', 'files', 'status']
+
+    def validate_status(self, value):
+        """
+        Если статус не был передан, то установим его как 'PENDING' (по умолчанию).
+        """
+        if not value:
+            value = 'PENDING'
+        return value
 
     def create(self, validated_data):
+        """
+        Создание нового проекта с установкой статуса по умолчанию.
+        """
         files_data = validated_data.pop('files', [])
-        project_report = ProjectReport.objects.create(**validated_data)
-        project_report.files.set(files_data)  # Link files to the report
-        return project_report
+
+        # Устанавливаем статус по умолчанию, если не был передан
+        validated_data['status'] = validated_data.get('status', 'PENDING')
+
+        # Создаем проект
+        project = Project.objects.create(**validated_data)
+
+        # Привязываем файлы к проекту
+        project.files.set(files_data)
+
+        # Возвращаем созданный объект проекта
+        return project
