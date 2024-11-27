@@ -415,6 +415,22 @@ class StageReport(models.Model):
         null=True
     )
 
+    TYPE_CHOICES = [
+        ('REQUEST', 'Запрос'),
+        ('REPORT', 'Отчет'),
+        ('NOTE', 'Примечание'),
+    ]
+
+    STATUS_CHOICES = [
+        ('PENDING', 'Ждет подтверждения ответственным лицом'),
+        ('APPROVED', 'Подтверждено'),
+        ('REJECTED', 'Отклонено'),
+    ]
+
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='REPORT')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    budget = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
     def __str__(self):
         return f"{self.title}"
 
@@ -464,6 +480,21 @@ class ProjectReport(models.Model):
         help_text="Пользователь, создавший этот объект",
         null=True
     )
+
+    TYPE_CHOICES = [
+        ('REQUEST', 'Запрос'),
+        ('REPORT', 'Отчет'),
+        ('NOTE', 'Примечание'),
+    ]
+
+    STATUS_CHOICES = [
+        ('PENDING', 'Ждет подтверждения ответственным лицом'),
+        ('APPROVED', 'Подтверждено'),
+        ('REJECTED', 'Отклонено'),
+    ]
+
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='REPORT')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 
     def __str__(self):
         return f"{self.title}"
