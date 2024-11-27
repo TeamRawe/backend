@@ -15,7 +15,7 @@ def role_required(allowed_roles):
                 return Response({"detail": "Access denied. Insufficient role."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-            return view_func(self, *args, **kwargs)
+            return view_func(self, request, *args, **kwargs)
         return _wrapped_view
     return decorator
 
@@ -29,7 +29,7 @@ def assignment_required(allowed_statuses):
 
             # Проверка на активный статус, роль ADMIN или RULER, а также суперпользователя
             if user.is_active and (user.is_superuser or user.role in ['ADMIN', 'RULER']):
-                return view_func(request, *args, **kwargs)
+                return view_func(self, request, *args, **kwargs)
 
             # Проверка назначения на этап
             if stage_id:
@@ -56,7 +56,7 @@ def assignment_required(allowed_statuses):
                         status=status.HTTP_403_FORBIDDEN
                     )
 
-            return view_func(self, *args, **kwargs)
+            return view_func(self, request, *args, **kwargs)
 
         return _wrapped_view
 

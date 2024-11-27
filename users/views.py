@@ -1,3 +1,4 @@
+from django.utils.timezone import now
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate, login, logout
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -9,6 +10,9 @@ from .models import User
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from database.logger import logger
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.sessions.models import Session
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

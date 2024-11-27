@@ -31,7 +31,7 @@ class ReadProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'planned_cost', 'customer', 'progress', 'created_by']
+        fields = ['id', 'title', 'description', 'start_date', 'end_date', 'planned_cost', 'customer', 'progress', 'created_by', 'status']
         read_only_fields = ['id', 'created_by']
 
 
@@ -188,3 +188,27 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
 
         # Возвращаем созданный объект проекта
         return project
+
+class ProjectReportCreateSerializer(serializers.ModelSerializer):
+    files = serializers.PrimaryKeyRelatedField(queryset=File.objects.all(), many=True)
+
+    class Meta:
+        model = ProjectReport
+        fields = ['title', 'commentary', 'stage', 'files', 'budget']
+
+    def create(self, validated_data):
+        """
+        Создание нового отчета.
+        """
+        files_data = validated_data.pop('files', [])
+        # Устанавливаем статус по умолчанию
+        validated_data['status'] = 'PENDING'
+
+        # Создаем StageReport
+        project_report = ProjectReport.objects.create(**validated_data)
+
+        # Привязываем файлы к отчету
+        project_report.files.set(files_data)
+
+        # Возвращаем созданный объект
+        return project_report

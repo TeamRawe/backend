@@ -18,10 +18,9 @@ from django.utils import timezone
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-#Environmental parameters loading
+# Environmental parameters loading
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -37,10 +36,8 @@ ALLOWED_HOSTS = ['*']
 INTERNAL_IPS = [
     '127.0.0.1',  # Локальный доступ
     '192.168.0.0/16',
-    'localhost'# Пример диапазона для локальной сети
+    'localhost'  # Пример диапазона для локальной сети
 ]
-
-
 
 # Application definition
 
@@ -97,7 +94,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'database.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -130,7 +126,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -141,7 +136,6 @@ TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -190,15 +184,26 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
+# Настройки Celery
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Указываем Redis как брокера (0 - это номер базы данных Redis)
+CELERY_ACCEPT_CONTENT = ['json']  # Формат сериализации задач
+CELERY_TASK_SERIALIZER = 'json'  # Используем JSON для сериализации задач
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Хранение результатов также в Redis
+CELERY_TIMEZONE = 'Europe/Moscow'  # Устанавливаем часовой пояс
+
+# Безопасность сети
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Стандартная сессия через базу данных
 SESSION_COOKIE_NAME = 'sessionid'  # Название cookie для сессии
-SESSION_COOKIE_SECURE = not (DEBUG)  # Использование HTTPS для cookies (важно для продакшн)
+SESSION_COOKIE_SECURE = not DEBUG  # Использование HTTPS для cookies (важно для продакшн)
 SESSION_COOKIE_HTTPONLY = False  # Защищает cookie от доступа через JavaScript
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Закрытие браузера = выход из системы
-CSRF_COOKIE_SECURE = not (DEBUG)  # Защита от CSRF при передаче через HTTPS
+CSRF_COOKIE_SECURE = not DEBUG  # Защита от CSRF при передаче через HTTPS
 CSRF_COOKIE_HTTPONLY = False  # Защита от XSS атак
 CSRF_TRUSTED_ORIGINS = ['http://localhost:5012',  # Добавляем локальный адрес клиента
-    'http://127.0.0.1:5012', 'https://localhost:7065','https://127.0.0.1:7065']  # Можно указать доверенные источники
+                        'http://127.0.0.1:5012', 'https://localhost:7065',
+                        'https://127.0.0.1:7065']  # Можно указать доверенные источники
+
 CSRF_COOKIE_NAME = "csrftoken"
 
 CSRF_COOKIE_SAMESITE = "Lax"
@@ -209,6 +214,5 @@ SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 3600 * 12
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5012", "https://127.0.0.1:7065",'http://localhost:5012','https://localhost:7065']
+    "http://127.0.0.1:5012", "https://127.0.0.1:7065", 'http://localhost:5012', 'https://localhost:7065']
 CORS_ALLOW_CREDENTIALS = True
-

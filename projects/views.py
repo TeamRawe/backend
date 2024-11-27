@@ -5,6 +5,8 @@ from rest_framework import viewsets
 from .serializers import *
 from rest_framework.exceptions import MethodNotAllowed
 from database.logger import logger
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -19,6 +21,7 @@ def test_assign(request, project_id, stage_id):
 
 @permission_classes([IsAuthenticated])
 class ProjectViewSet(viewsets.ModelViewSet):
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     queryset = Project.objects.all()
 
     def get_serializer_class(self):
@@ -27,6 +30,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return UpdateProjectSerializer
         return ReadProjectSerializer
+
+    filterset_fields = ['status', 'created_by', 'start_date']  # Поля для фильтрации
+    search_fields = ['name', 'description']  # Поля для поиска
+    ordering_fields = ['start_date', 'end_date', 'name']
 
     def perform_create(self, serializer):
         if not self.request.user.is_authenticated:
@@ -77,6 +84,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 class StageViewSet(viewsets.ModelViewSet):
     queryset = Stage.objects.all()
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    filterset_fields = ['status', 'created_by', 'start_date']  # Поля для фильтрации
+    search_fields = ['name', 'description']  # Поля для поиска
+    ordering_fields = ['start_date', 'end_date', 'name']
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -135,6 +147,11 @@ class StageViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    filterset_fields = ['uploaded_at', 'created_by', 'project', 'stage']  # Добавлены project и stage
+    search_fields = ['name', 'description']
+    ordering_fields = ['uploaded_at', 'name']
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -193,6 +210,11 @@ class FileViewSet(viewsets.ModelViewSet):
 class ProjectAssignmentViewSet(viewsets.ModelViewSet):
     queryset = ProjectAssignment.objects.all()
     serializer_class = ProjectAssignmentSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    filterset_fields = ['status', 'assigned_to', 'project']  # Добавлены новые поля
+    search_fields = ['assigned_to__email', 'project__name']
+    ordering_fields = ['created_at', 'status']
 
     def perform_create(self, serializer):
         if not self.request.user.is_authenticated:
@@ -244,6 +266,11 @@ class ProjectAssignmentViewSet(viewsets.ModelViewSet):
 class StageAssignmentViewSet(viewsets.ModelViewSet):
     queryset = StageAssignment.objects.all()
     serializer_class = StageAssignmentSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    filterset_fields = ['status', 'assigned_to', 'stage']  # Добавлены новые поля
+    search_fields = ['assigned_to__email', 'stage__name']
+    ordering_fields = ['created_at', 'status']
 
     def perform_create(self, serializer):
         if not self.request.user.is_authenticated:
@@ -294,6 +321,11 @@ class StageAssignmentViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 class StageReportViewSet(viewsets.ModelViewSet):
     queryset = StageReport.objects.all()
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    filterset_fields = ['status', 'created_by', 'stage']  # Добавлены поля фильтрации
+    search_fields = ['description', 'stage__name']
+    ordering_fields = ['created_at', 'status']
 
     def perform_create(self, serializer):
         if not self.request.user.is_authenticated:
@@ -349,6 +381,11 @@ class StageReportViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 class ProjectReportViewSet(viewsets.ModelViewSet):
     queryset = ProjectReport.objects.all()
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    filterset_fields = ['status', 'created_by', 'project']  # Добавлены поля фильтрации
+    search_fields = ['description', 'project__name']
+    ordering_fields = ['created_at', 'status']
 
     def get_serializer_class(self):
         if self.action == 'create':
