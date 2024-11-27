@@ -26,6 +26,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return UpdateProjectSerializer
         return ReadProjectSerializer
 
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("Пользователь должен быть аутентифицирован")
+        serializer.save(created_by=self.request.user)
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
@@ -67,6 +71,11 @@ class StageViewSet(viewsets.ModelViewSet):
             return UpdateStageSerializer
         return ReadStageSerializer
 
+    def perform_create(self, serializer):
+        # Проверяем права и заполняем created_by текущим пользователем
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("Пользователь должен быть аутентифицирован")
+        serializer.save(created_by=self.request.user)
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
@@ -108,6 +117,11 @@ class FileViewSet(viewsets.ModelViewSet):
             return CreateFileSerializer  # Используем тот же сериализатор для обновления
         return ReadFileSerializer
 
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("Пользователь должен быть аутентифицирован")
+        serializer.save(created_by=self.request.user)
+
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
@@ -141,6 +155,11 @@ class FileViewSet(viewsets.ModelViewSet):
 class ProjectAssignmentViewSet(viewsets.ModelViewSet):
     queryset = ProjectAssignment.objects.all()
     serializer_class = ProjectAssignmentSerializer
+
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("Пользователь должен быть аутентифицирован")
+        serializer.save(created_by=self.request.user)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
@@ -176,6 +195,11 @@ class StageAssignmentViewSet(viewsets.ModelViewSet):
     queryset = StageAssignment.objects.all()
     serializer_class = StageAssignmentSerializer
 
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("Пользователь должен быть аутентифицирован")
+        serializer.save(created_by=self.request.user)
+
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
@@ -209,6 +233,11 @@ class StageAssignmentViewSet(viewsets.ModelViewSet):
 class StageReportViewSet(viewsets.ModelViewSet):
     queryset = StageReport.objects.all()
 
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("Пользователь должен быть аутентифицирован")
+        serializer.save(created_by=self.request.user)
+
     def get_serializer_class(self):
         if self.action == 'create':
             return StageReportCreateSerializer
@@ -230,7 +259,7 @@ class StageReportViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN'])
-    @assignment_required(['ACTIVE'])
+    @assignment_required(['ACTIVE', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
 
@@ -252,6 +281,11 @@ class ProjectReportViewSet(viewsets.ModelViewSet):
             return ProjectReportCreateSerializer
         return ProjectReportSerializer
 
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied("Пользователь должен быть аутентифицирован")
+        serializer.save(created_by=self.request.user)
+
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
@@ -267,7 +301,7 @@ class ProjectReportViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @role_required(['ADMIN'])
+    @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
