@@ -2,7 +2,6 @@ from users.permissions import *
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import viewsets
-from .models import *
 from .serializers import *
 from rest_framework.exceptions import MethodNotAllowed
 
@@ -46,6 +45,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         raise MethodNotAllowed("DELETE",
                                detail="Удаление запрещено")
+
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
@@ -54,6 +54,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+
+
 @permission_classes([IsAuthenticated])
 class StageViewSet(viewsets.ModelViewSet):
     queryset = Stage.objects.all()
@@ -64,16 +66,18 @@ class StageViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return UpdateStageSerializer
         return ReadStageSerializer
-    @role_required(['ADMIN','PROJECT_MANAGER','STAGE_MANAGER', 'RULER'])
-    @assignment_required(['ACTIVE','FREEZED'])
+
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
+    @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    @role_required(['ADMIN','PROJECT_MANAGER',])
+
+    @role_required(['ADMIN', 'PROJECT_MANAGER', ])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @role_required(['ADMIN', 'PROJECT_MANAGER',])
+    @role_required(['ADMIN', 'PROJECT_MANAGER', ])
     @assignment_required(['ACTIVE'])
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
@@ -92,6 +96,7 @@ class StageViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
+
 @permission_classes([IsAuthenticated])
 class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
@@ -103,17 +108,17 @@ class FileViewSet(viewsets.ModelViewSet):
             return CreateFileSerializer  # Используем тот же сериализатор для обновления
         return ReadFileSerializer
 
-    @role_required(['ADMIN', 'PROJECT_MANAGER','STAGE_MANAGER','RULER'])
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @role_required(['ADMIN', 'PROJECT_MANAGER','STAGE_MANAGER'])
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @role_required(['ADMIN', 'PROJECT_MANAGER','STAGE_MANAGER'])
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
@@ -137,7 +142,7 @@ class ProjectAssignmentViewSet(viewsets.ModelViewSet):
     queryset = ProjectAssignment.objects.all()
     serializer_class = ProjectAssignmentSerializer
 
-    @role_required(['ADMIN', 'PROJECT_MANAGER','RULER'])
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -171,7 +176,7 @@ class StageAssignmentViewSet(viewsets.ModelViewSet):
     queryset = StageAssignment.objects.all()
     serializer_class = StageAssignmentSerializer
 
-    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER','RULER'])
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
@@ -194,6 +199,82 @@ class StageAssignmentViewSet(viewsets.ModelViewSet):
     @role_required([])
     def destroy(self, request, *args, **kwargs):
         raise MethodNotAllowed("DELETE", detail="Удаление назначений запрещено")
+
+    @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+
+@permission_classes([IsAuthenticated])
+class StageReportViewSet(viewsets.ModelViewSet):
+    queryset = StageReport.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return StageReportCreateSerializer
+        return StageReportSerializer
+
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
+    @assignment_required(['ACTIVE', 'FREEZED'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
+    @assignment_required(['ACTIVE'])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
+    @assignment_required(['ACTIVE'])
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @role_required(['ADMIN'])
+    @assignment_required(['ACTIVE'])
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @role_required([])
+    def destroy(self, request, *args, **kwargs):
+        raise MethodNotAllowed("DELETE", detail="Удаление отчетов запрещено")
+
+    @role_required(['ADMIN'])  # Только администраторы могут получить список
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+
+@permission_classes([IsAuthenticated])
+class ProjectReportViewSet(viewsets.ModelViewSet):
+    queryset = ProjectReport.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return ProjectReportCreateSerializer
+        return ProjectReportSerializer
+
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
+    @assignment_required(['ACTIVE', 'FREEZED'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @role_required(['ADMIN', 'PROJECT_MANAGER'])
+    @assignment_required(['ACTIVE'])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @role_required(['ADMIN', 'PROJECT_MANAGER'])
+    @assignment_required(['ACTIVE'])
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @role_required(['ADMIN'])
+    @assignment_required(['ACTIVE'])
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @role_required([])
+    def destroy(self, request, *args, **kwargs):
+        raise MethodNotAllowed("DELETE", detail="Удаление отчетов по проекту запрещено")
 
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):

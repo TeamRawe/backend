@@ -18,6 +18,12 @@ stage_assignment_router.register(r'stage_assignments', views.StageAssignmentView
 stage_router = DefaultRouter()
 stage_router.register(r'stages', views.StageViewSet, basename='stage')
 
+stage_report_router = DefaultRouter()
+stage_router.register(r'stages_reports', views.StageViewSet, basename='stage_report')
+
+project_report_router = DefaultRouter()
+stage_router.register(r'project_reports', views.StageViewSet, basename='project_report')
+
 # API
 urlpatterns = [
     path('test_assign/<uuid:project_id>/<uuid:stage_id>/', views.test_assign, name='test_assign'),  # Тест
@@ -27,4 +33,6 @@ urlpatterns = [
     path('', include(project_assignment_router.urls)),  # Назначения для проектов
     path('', include(stage_assignment_router.urls)),  # Назначения для этапов
     path('', include(stage_router.urls)),  # Этапы
+    path('', include(stage_report_router.urls)),
+    path('', include(project_report_router.urls)),
 ]

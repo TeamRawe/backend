@@ -64,6 +64,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -72,8 +73,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_otp.middleware.OTPMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.locale.LocaleMiddleware'
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'database.urls'
@@ -195,9 +195,11 @@ SESSION_COOKIE_HTTPONLY = False  # Защищает cookie от доступа �
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Закрытие браузера = выход из системы
 CSRF_COOKIE_SECURE = not (DEBUG)  # Защита от CSRF при передаче через HTTPS
 CSRF_COOKIE_HTTPONLY = False  # Защита от XSS атак
-CSRF_TRUSTED_ORIGINS = ['https://yourdomain.com']  # Можно указать доверенные источники
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5012',  # Добавляем локальный адрес клиента
+    'http://127.0.0.1:5012', 'https://localhost:7065','https://127.0.0.1:7065']  # Можно указать доверенные источники
 CSRF_COOKIE_NAME = "csrftoken"
 
+CSRF_COOKIE_SAMESITE = "Lax"
 
 ADMIN_URL = 'admin/'
 
@@ -205,6 +207,6 @@ SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5012", "https://127.0.0.1:7065"
-]
+    "http://127.0.0.1:5012", "https://127.0.0.1:7065",'http://localhost:5012','https://localhost:7065']
 CORS_ALLOW_CREDENTIALS = True
+

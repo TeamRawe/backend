@@ -8,6 +8,7 @@ from rest_framework.exceptions import MethodNotAllowed
 from .models import User
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
+from database.logger import logger
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -20,13 +21,14 @@ def login_view(request):
 
     if user is not None:
         login(request, user)
-
+        logger.info(f"Успешная авторизация {user.email} от {request.META.get('REMOTE_ADDR')}")
         return Response({
             'message': 'Successfully logged in!',
-            'role': user.role,
+            'id': user.id,
         }, status=status.HTTP_200_OK)
 
         # Если аутентификация не удалась
+    logger.warn(f"Авторизация не удалась. Переданы данные {email, password} от {request.META.get('REMOTE_ADDR')}")
     return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -40,6 +42,7 @@ def logout_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def test(request):
+    logger.info(f"Токен CSRF успешно сгенерирован для {request.META.get('REMOTE_ADDR')}")
     csrf_token = get_token(request)  # Генерация CSRF токена
     response = JsonResponse({'message': 'CSRF cookie set successfully'})  # Ответ клиенту
     response.set_cookie(  # Устанавливаем токен в куки
@@ -47,7 +50,7 @@ def test(request):
         value=csrf_token,
         httponly=False,  # Не делаем токен HttpOnly, чтобы JavaScript мог его использовать (если нужно)
         secure=False,  # Включите True для HTTPS в продакшн
-        samesite='None'  # Настройка SameSite для предотвращения CSRF атак
+        samesite='Lax'  # Настройка SameSite для предотвращения CSRF атак
     )
     return response
 
