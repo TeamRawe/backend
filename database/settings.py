@@ -139,7 +139,7 @@ LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 
@@ -160,6 +160,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 FIELD_ENCRYPTION_KEY = env('ENC_KEY')
+
+DEFAULT_CHARSET = "utf-8"
 
 ALLOWED_FILE_EXTENSIONS = ['pdf',
                            'docx',
@@ -203,8 +205,8 @@ CSRF_COOKIE_SAMESITE = "Lax"
 
 ADMIN_URL = 'admin/'
 
-SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = 3600 * 12
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5012", "https://127.0.0.1:7065",'http://localhost:5012','https://localhost:7065']

@@ -12,5 +12,6 @@ urlpatterns = [
     path('secure_test/', views.secure_test, name='secure_test'), # Тест требующий авторизации
     path('logout/', views.logout_view, name='logout'), #Новый access_token токен по refresh_token
     path('role_test/', views.test_role, name='role_test'),
+    path('check_session/', views.check_session, name='check_session'),
     path('', include(router.urls))
 ]

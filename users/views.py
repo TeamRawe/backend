@@ -9,6 +9,10 @@ from .models import User
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from database.logger import logger
+from django.contrib.sessions.models import Session
+from django.views.decorators.csrf import csrf_protect
+from django.utils.timezone import now
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -63,11 +67,40 @@ def secure_test(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-@role_required(['ADMIN','RULER','PROJECT_MANAGER','STAGE_MANAGER'])
+@role_required(['ADMIN', 'RULER', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
 def test_role(request):
     user = request.user
     # noinspection PyUnresolvedReferences
     return Response({"message": f"Hello, {user.first_name}! Your role: {user.role} This was a test."})
+
+
+@api_view(['GET'])
+@csrf_protect
+@permission_classes([AllowAny])
+def check_session(request):
+    # Получаем session ID из куки
+    session_id = request.COOKIES.get('sessionid')
+
+    if not session_id:
+        # Если куки нет, возвращаем ошибку
+        return JsonResponse({'error': 'Session ID not found in cookies'}, status=400)
+
+    try:
+        # Проверяем, существует ли сессия с таким ID
+        session = Session.objects.get(session_key=session_id)
+
+        # Проверяем, не истекла ли сессия
+        if session.expire_date < now():
+            return JsonResponse({'error': 'Session expired'}, status=401)
+
+        # Если сессия валидна, возвращаем 200 OK
+        return JsonResponse({'message': 'Session is valid'}, status=200)
+
+    except Session.DoesNotExist:
+        # Если сессия не найдена, возвращаем ошибку
+        return JsonResponse({'error': 'Invalid session ID'}, status=401)
+
+
 @permission_classes([IsAuthenticated])
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -78,6 +111,7 @@ class UserViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return UserUpdateSerializer
         return ReadUserSerializer
+
     @only_for_self(['STAGE_MANAGER', 'PROJECT_MANAGER'])
     def retrieve(self, request, *args, **kwargs):
         # Декоратор ограничит доступ к методу retrieve для указанных ролей
@@ -95,6 +129,7 @@ class UserViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         raise MethodNotAllowed("DELETE",
                                detail="Удаление пользователя запрещено. Вместо этого можно деактивировать пользователя.")
+
     @role_required(['ADMIN'])
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
@@ -102,7 +137,3 @@ class UserViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-
-
-
-

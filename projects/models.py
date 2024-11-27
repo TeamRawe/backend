@@ -111,14 +111,14 @@ class Project(models.Model):
         max_length=150,
         blank=False,
         null=False,
-        help_text='Полное наименование организации'
+        help_text='Название проекта'
     )
-    description = models.TextField(blank=True, null=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    description = models.TextField(blank=True, null=True, help_text="Описание")
+    start_date = models.DateField(help_text="Дата начала")
+    end_date = models.DateField(help_text="Дата окончания")
     planned_cost = models.DecimalField(max_digits=10, decimal_places=2, help_text='Плановый бюджет')
     # Связь с госкомпанией - заказчиком проекта
-    customer = models.ForeignKey(GovernmentalCompany, null=True, on_delete=models.PROTECT, related_name="projects")
+    customer = models.ForeignKey(GovernmentalCompany, null=True, on_delete=models.PROTECT, related_name="projects", help_text="Заказчик")
 
     progress = models.PositiveIntegerField(
         default=0,
@@ -193,6 +193,39 @@ class Stage(models.Model):
             raise ValidationError("Плановый бюджет не может быть отрицательным.")
         if self.progress < 0 or self.progress > 100:
             raise ValidationError("Процент выполнения должен быть в пределах от 0 до 100.")
+
+        total_stage_cost = sum(
+            stage.planned_cost for stage in self.project.stages.exclude(pk=self.pk)
+        ) + self.planned_cost
+        if total_stage_cost > self.project.planned_cost:
+            raise ValidationError(
+                f"Суммарная стоимость этапов ({total_stage_cost}) "
+                f"не может превышать стоимость проекта ({self.project.planned_cost})."
+            )
+
+        # Если у этапа есть родительский этап, проверяем подэтапы
+        if self.parent_stage:
+            sibling_stages = self.parent_stage.children_stages.exclude(pk=self.pk)
+            total_sibling_cost = sum(stage.planned_cost for stage in sibling_stages) + self.planned_cost
+            if total_sibling_cost > self.parent_stage.planned_cost:
+                raise ValidationError(
+                    f"Суммарная стоимость подэтапов ({total_sibling_cost}) "
+                    f"не может превышать стоимость родительского этапа ({self.parent_stage.planned_cost})."
+                )
+
+        if self.start_date < self.project.start_date or self.end_date > self.project.end_date:
+            raise ValidationError(
+                f"Даты этапа должны быть в пределах дат проекта: "
+                f"{self.project.start_date} - {self.project.end_date}."
+            )
+
+            # Если у этапа есть родительский этап, проверяем подэтапы
+        if self.parent_stage:
+            if self.start_date < self.parent_stage.start_date or self.end_date > self.parent_stage.end_date:
+                raise ValidationError(
+                    f"Даты этапа должны быть в пределах дат родительского этапа: "
+                    f"{self.parent_stage.start_date} - {self.parent_stage.end_date}."
+                )
 
     class StageStatus(models.TextChoices):
         APPROVED = 'APPROVED', 'Проект сдан'
@@ -340,10 +373,6 @@ class StageAssignment(AssignmentBase):
     def __str__(self):
         return super().__str__()
 
-
-from django.db import models
-from django.core.exceptions import ValidationError
-import uuid
 
 class StageReport(models.Model):
     id = models.UUIDField(
