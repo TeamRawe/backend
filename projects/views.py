@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import viewsets
 from .serializers import *
 from rest_framework.exceptions import MethodNotAllowed
-
+from database.logger import logger
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -12,6 +12,8 @@ from rest_framework.exceptions import MethodNotAllowed
 @assignment_required(['ACTIVE', 'FREEZED'])
 def test_assign(request, project_id, stage_id):
     user = request.user
+    logger.info(f"Запрос от пользователя {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
+    logger.info(f"Параметры запроса: project_id = {project_id}, stage_id = {stage_id}")
     return Response({"message": f"Hello, {user.first_name}! You are allowed on this target"})
 
 
@@ -33,30 +35,42 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         raise MethodNotAllowed("DELETE",
                                detail="Удаление запрещено")
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
 
 
@@ -79,30 +93,42 @@ class StageViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER', ])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER', ])
     @assignment_required(['ACTIVE'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         raise MethodNotAllowed("DELETE",
                                detail="Удаление запрещено")
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
 
 
@@ -125,29 +151,41 @@ class FileViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         raise MethodNotAllowed("DELETE", detail="Удаление файлов запрещено")
 
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
 
 
@@ -164,29 +202,41 @@ class ProjectAssignmentViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         raise MethodNotAllowed("DELETE", detail="Удаление назначений запрещено")
 
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
 
 
@@ -203,29 +253,41 @@ class StageAssignmentViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         raise MethodNotAllowed("DELETE", detail="Удаление назначений запрещено")
 
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
 
 
@@ -246,29 +308,41 @@ class StageReportViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN'])
     @assignment_required(['ACTIVE', 'PROJECT_MANAGER', 'STAGE_MANAGER'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         raise MethodNotAllowed("DELETE", detail="Удаление отчетов запрещено")
 
     @role_required(['ADMIN'])  # Только администраторы могут получить список
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
 
 
@@ -289,27 +363,39 @@ class ProjectReportViewSet(viewsets.ModelViewSet):
     @role_required(['ADMIN', 'PROJECT_MANAGER', 'STAGE_MANAGER', 'RULER'])
     @assignment_required(['ACTIVE', 'FREEZED'])
     def retrieve(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос на получение данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().retrieve(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def create(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().update(request, *args, **kwargs)
 
     @role_required(['ADMIN', 'PROJECT_MANAGER'])
     @assignment_required(['ACTIVE'])
     def partial_update(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Частичное обновление данных пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().partial_update(request, *args, **kwargs)
 
     @role_required([])
     def destroy(self, request, *args, **kwargs):
+        user = request.user
+        logger.warning(f"Попытка удаления пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         raise MethodNotAllowed("DELETE", detail="Удаление отчетов по проекту запрещено")
 
     @role_required(['ADMIN'])  # Ограничение доступа к списку только для администраторов
     def list(self, request, *args, **kwargs):
+        user = request.user
+        logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
