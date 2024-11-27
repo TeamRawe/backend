@@ -135,12 +135,11 @@ class Project(models.Model):
             raise ValidationError("Процент выполнения должен быть в пределах от 0 до 100.")
 
     class ProjectStatus(models.TextChoices):
-        ARCHIVED = 'ARCHIVED', 'В архиве'
         APPROVED = 'APPROVED', 'Проект сдан'
         FINISHED = 'FINISHED', 'Работы выполнены'
         ACTIVE = 'ACTIVE', 'Активный'
-        AWAITING = 'Ожидается начало работ'
-        PLANNED = 'Запланирован'
+        AWAITING = 'AWAITING', 'Ожидается начало работ'
+        PLANNED = 'PLANNED', 'Запланирован'
 
     status = models.CharField(
         max_length=25,
@@ -231,8 +230,8 @@ class Stage(models.Model):
         APPROVED = 'APPROVED', 'Проект сдан'
         FINISHED = 'FINISHED', 'Работы выполнены'
         ACTIVE = 'ACTIVE', 'Активный'
-        AWAITING = 'Ожидается начало работ'
-        PLANNED = 'Запланирован'
+        AWAITING = 'AWAITING','Ожидается начало работ'
+        PLANNED = 'PLANNED', 'Запланирован'
 
     status = models.CharField(
         max_length=25,
