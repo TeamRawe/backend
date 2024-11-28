@@ -113,7 +113,8 @@ class GovernmentalCompany(models.Model):
         max_length=13,
         blank=False,
         null=False,
-        help_text='ОГРН - Основной государственный регистрационный номер'
+        help_text='ОГРН - Основной государственный регистрационный номер',
+        unique=True
     )
     kpp = models.CharField(
         max_length=9,

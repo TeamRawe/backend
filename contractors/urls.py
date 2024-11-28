@@ -2,6 +2,8 @@ from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
 
+from .views import get_company_api
+
 subcontractor_router = DefaultRouter()
 subcontractor_router.register(r'subs', views.SubContractorViewSet, basename='subcontractor')
 
@@ -15,4 +17,5 @@ urlpatterns = [
     path('', include(subcontractor_router.urls)), # Подрядчики
     path('', include(governmental_company_router.urls)), # Гос компании
     path('', include(contact_face_router.urls)), # Контактные лица
+    path('gov/<int:id>', get_company_api, name="get_company"),
 ]
