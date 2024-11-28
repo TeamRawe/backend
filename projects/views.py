@@ -7,6 +7,8 @@ from rest_framework.exceptions import MethodNotAllowed
 from database.logger import logger
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q
+from rest_framework.decorators import action
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -34,6 +36,22 @@ class ProjectViewSet(viewsets.ModelViewSet):
     filterset_fields = ['status', 'created_by', 'start_date']  # Поля для фильтрации
     search_fields = ['name', 'description']  # Поля для поиска
     ordering_fields = ['start_date', 'end_date', 'name']
+
+    # Кастомное действие для получения проектов, связанных с пользователем
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    @role_required(['ADMIN', 'PROJECT_MANAGER', 'RULER'])
+    def assigned(self, request):
+        user = request.user
+
+        # Получение проектов через модель назначений
+        assigned_projects = Project.objects.filter(
+            Q(assignments__assigned_to=user) |
+            Q(assignments__project_manager=user)
+        ).distinct()
+
+        # Сериализация результатов
+        serializer = self.get_serializer(assigned_projects, many=True)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         if not self.request.user.is_authenticated:

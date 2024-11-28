@@ -72,7 +72,7 @@ class ReadStageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stage
-        fields = ['id', 'project', 'parent_stage', 'title', 'start_date', 'end_date', 'planned_cost', 'status', 'number', 'progress', 'created_by']
+        fields = ['id', 'project','worker', 'parent_stage', 'title', 'start_date', 'end_date', 'planned_cost', 'status', 'number', 'progress', 'created_by']
         read_only_fields = ['id', 'number', 'created_by']
 
 
@@ -81,13 +81,13 @@ class CreateStageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stage
-        fields = ['project', 'parent_stage', 'title', 'start_date', 'end_date', 'planned_cost', 'status', 'progress', 'created_by']
+        fields = ['project','worker','parent_stage', 'title', 'start_date', 'end_date', 'planned_cost', 'status', 'progress', 'created_by']
 
 
 class UpdateStageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stage
-        fields = ['title', 'start_date', 'end_date', 'planned_cost', 'status', 'progress']
+        fields = ['title','worker', 'start_date', 'end_date', 'planned_cost', 'status', 'progress']
 
 
 class StageReportSerializer(serializers.ModelSerializer):

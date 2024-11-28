@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from rest_framework.routers import DefaultRouter
+from .extra_views import *
 
 project_router = DefaultRouter()
 project_router.register(r'projects', views.ProjectViewSet, basename='project')
@@ -35,4 +36,10 @@ urlpatterns = [
     path('', include(stage_router.urls)),  # Этапы
     path('', include(stage_report_router.urls)),
     path('', include(project_report_router.urls)),
+    path('e/ms/', project_from_file),
+    path('e/user_projects/', get_user_projects, name='user-projects'),
+    path('e/project_stages/<uuid:project_id>/', get_project_stages),
+    path('e/stage_substages/<uuid:stage_id>/', get_stage_substages),
+    path('e/project_files/<uuid:project_id>/<str:type>/', get_project_files),
+    path('e/stage_files/<uuid:stage_id>/<str:type>/', get_stage_files),
 ]

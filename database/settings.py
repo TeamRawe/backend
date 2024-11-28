@@ -171,6 +171,8 @@ ALLOWED_FILE_EXTENSIONS = ['pdf',
                            'geo',
                            'ppt',
                            'pptx'
+                           'jpeg',
+                           'jpg',
                            ]
 
 # Настройки аутентификации
@@ -186,10 +188,10 @@ REST_FRAMEWORK = {
 
 # Настройки Celery
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Указываем Redis как брокера (0 - это номер базы данных Redis)
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # Указываем Redis как брокера (0 - это номер базы данных Redis)
 CELERY_ACCEPT_CONTENT = ['json']  # Формат сериализации задач
 CELERY_TASK_SERIALIZER = 'json'  # Используем JSON для сериализации задач
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # Хранение результатов также в Redis
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'  # Хранение результатов также в Redis
 CELERY_TIMEZONE = 'Europe/Moscow'  # Устанавливаем часовой пояс
 
 # Безопасность сети
@@ -202,7 +204,7 @@ CSRF_COOKIE_SECURE = not DEBUG  # Защита от CSRF при передаче
 CSRF_COOKIE_HTTPONLY = False  # Защита от XSS атак
 CSRF_TRUSTED_ORIGINS = ['http://localhost:5012',  # Добавляем локальный адрес клиента
                         'http://127.0.0.1:5012', 'https://localhost:7065',
-                        'https://127.0.0.1:7065']  # Можно указать доверенные источники
+                        'https://127.0.0.1:7065', 'https://0.0.0.1', 'http://0.0.0.1']  # Можно указать доверенные источники
 
 CSRF_COOKIE_NAME = "csrftoken"
 
@@ -214,5 +216,19 @@ SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 3600 * 12
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5012", "https://127.0.0.1:7065", 'http://localhost:5012', 'https://localhost:7065']
+    "http://127.0.0.1:5012", "https://127.0.0.1:7065", 'http://localhost:5012', 'https://localhost:7065', 'https://0.0.0.1', 'http://0.0.0.1']
 CORS_ALLOW_CREDENTIALS = True
+
+#Почта
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'backendu@yandex.ru'  # почтовый адрес
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+DATE_FORMAT = 'd-m-Y'  # Формат: день-месяц-год
+TIME_FORMAT = 'H:i:s'  # Можно добавить формат для времени, если нужно
+DATETIME_FORMAT = 'd-m-Y H:i:s'  # Для комбинированного формата даты и времени

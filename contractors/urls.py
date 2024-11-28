@@ -3,13 +3,13 @@ from . import views
 from rest_framework.routers import DefaultRouter
 
 subcontractor_router = DefaultRouter()
-subcontractor_router.register(r'projects', views.SubContractorViewSet, basename='subcontractor')
+subcontractor_router.register(r'subs', views.SubContractorViewSet, basename='subcontractor')
 
 governmental_company_router = DefaultRouter()
-governmental_company_router.register(r'governmental-companies', views.GovernmentalCompanyViewSet, basename='governmental_company')
+governmental_company_router.register(r'govs', views.GovernmentalCompanyViewSet, basename='governmental_company')
 
 contact_face_router = DefaultRouter()
-contact_face_router.register(r'contact-faces', views.ContactFaceViewSet, basename='contact_face')
+contact_face_router.register(r'contacts', views.ContactFaceViewSet, basename='contact_face')
 
 urlpatterns = [
     path('', include(subcontractor_router.urls)), # Подрядчики
