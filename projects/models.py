@@ -116,7 +116,7 @@ class Project(models.Model):
     description = models.TextField(blank=True, null=True, help_text="Описание")
     start_date = models.DateField(help_text="Дата начала")
     end_date = models.DateField(help_text="Дата окончания")
-    planned_cost = models.DecimalField(max_digits=10, decimal_places=2, help_text='Плановый бюджет')
+    planned_cost = models.DecimalField(max_digits=10, decimal_places=2, help_text='Плановый бюджет (руб)', null=False, blank=False)
     # Связь с госкомпанией - заказчиком проекта
     customer = models.ForeignKey(GovernmentalCompany, null=True, on_delete=models.PROTECT, related_name="projects", help_text="Заказчик")
 
@@ -129,8 +129,8 @@ class Project(models.Model):
     def clean(self):
         if self.end_date < self.start_date:
             raise ValidationError("Дата окончания не может быть раньше даты начала.")
-        if self.planned_cost < 0:
-            raise ValidationError("Плановый бюджет не может быть отрицательным.")
+        if self.planned_cost is None or (self.planned_cost < 0):
+            raise ValidationError("Плановый бюджет не валиден.")
         if self.progress < 0 or self.progress > 100:
             raise ValidationError("Процент выполнения должен быть в пределах от 0 до 100.")
 
@@ -177,7 +177,10 @@ class Stage(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
-    planned_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    planned_cost = models.DecimalField(max_digits=10, decimal_places=2,help_text='Плановый бюджет (руб)', null=False, blank=False)
+
+    worker = models.ForeignKey(SubContractor, null=True, on_delete=models.PROTECT, related_name="stages",
+                                 help_text="Подрядчик")
 
     progress = models.PositiveIntegerField(
         default=0,
@@ -188,8 +191,8 @@ class Stage(models.Model):
     def clean(self):
         if self.end_date < self.start_date:
             raise ValidationError("Дата окончания не может быть раньше даты начала.")
-        if self.planned_cost < 0:
-            raise ValidationError("Плановый бюджет не может быть отрицательным.")
+        if self.planned_cost is None or self.planned_cost < 0:
+            raise ValidationError("Плановый бюджет не валиден.")
         if self.progress < 0 or self.progress > 100:
             raise ValidationError("Процент выполнения должен быть в пределах от 0 до 100.")
 
@@ -470,7 +473,8 @@ class ProjectReport(models.Model):
     files = models.ManyToManyField(
         'File',
         related_name='project_reports',
-        help_text="Файлы, связанные с отчетом проекта"
+        help_text="Файлы, связанные с отчетом проекта",
+        blank=True
     )
 
     created_by = models.ForeignKey(
@@ -502,4 +506,4 @@ class ProjectReport(models.Model):
     def clean(self):
         # Проверка, что отчет связан хотя бы с одним этапом
         if not self.project:
-            raise ValidationError("Отчет этапа должен быть связан хотя бы с одним этапом.")
+            raise ValidationError("Отчет должен быть связан с проектом")

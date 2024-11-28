@@ -11,6 +11,11 @@ services:
       POSTGRES_DB: gorder_db_d
     ports:
       - "5433:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
   # Django контейнер
   web:
     build: .
@@ -21,6 +26,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     environment:
       - DB_NAME=gorder_db_d
       - DB_USER=db_user
@@ -30,6 +36,23 @@ services:
       - LAN_IPS=192.168.0.0/16
       - DJANGO_SECRET_KEY="django-insecure-pgpp!$od9r+4u1(=0mz2=h1_(zd5nd-9!vcl2#yoba)s(513$d"
       - DEBUG=True
+
+  celery:
+    build: .
+    command: celery -A database worker --loglevel=info
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SECRET_KEY="django-insecure-pgpp!$od9r+4u1(=0mz2=h1_(zd5nd-9!vcl2#yoba)s(513$d"
+      - DB_NAME=gorder_db_d
+      - DB_USER=db_user
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+      - db
 
 
 volumes:

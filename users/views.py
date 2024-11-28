@@ -12,6 +12,7 @@ from django.middleware.csrf import get_token
 from database.logger import logger
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.sessions.models import Session
+from .tasks import send_email_notification
 
 
 @api_view(['POST'])
@@ -157,3 +158,14 @@ class UserViewSet(viewsets.ModelViewSet):
         user = request.user
         logger.info(f"Запрос списка пользователей от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().list(request, *args, **kwargs)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def send_email_test(request):
+    send_email_notification.delay(
+        subject='Тема топовая',
+        message='hello!',
+        email='backend_u@ro.ru',
+        recipient_list=['111evgenos111@gmail.com']
+    )
+    return Response("Email отправлен!")

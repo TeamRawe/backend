@@ -39,14 +39,14 @@ class ProjectAdmin(admin.ModelAdmin):
     )
 
 class StageAdmin(admin.ModelAdmin):
-    list_display = ('title','number','progress', 'created_by', 'start_date', 'end_date', 'status', 'planned_cost', 'project')
+    list_display = ('title','number','worker','progress', 'created_by', 'start_date', 'end_date', 'status', 'planned_cost', 'project')
     search_fields = ('number', 'title', 'project__title', 'start_date', 'end_date', 'created_by')
     list_filter = ('status', 'start_date', 'end_date', 'project', 'created_by')
     ordering = ('number', 'start_date')
 
     fieldsets = (
         (None, {
-            'fields': ('title','progress', 'start_date', 'end_date', 'status', 'planned_cost', 'project', 'parent_stage')
+            'fields': ('title','progress', 'start_date', 'end_date', 'status', 'planned_cost', 'project', 'parent_stage','worker')
         }),
     )
 
@@ -71,14 +71,14 @@ class StageAssignmentAdmin(admin.ModelAdmin):
 
 
 class StageReportAdmin(admin.ModelAdmin):
-    list_display = ('title', 'stage', 'created_by', 'created_at')
+    list_display = ('title', 'stage', 'created_by', 'created_at','status',)
     list_filter = ('created_at', 'stage', 'created_by')
     search_fields = ('title', 'stage__name', 'created_by__username')
     readonly_fields = ('created_at',)
     filter_horizontal = ('files',)
     fieldsets = (
         (None, {
-            'fields': ('title', 'commentary', 'stage', 'files', 'created_by')
+            'fields': ('title', 'commentary','status', 'stage', 'files', 'created_by')
         }),
         ('Metadata', {
             'fields': ('created_at',)
@@ -86,14 +86,14 @@ class StageReportAdmin(admin.ModelAdmin):
     )
 
 class ProjectReportAdmin(admin.ModelAdmin):
-    list_display = ('title', 'project', 'created_by', 'created_at')
+    list_display = ('title', 'project', 'created_by', 'created_at','status',)
     list_filter = ('created_at', 'project', 'created_by')
     search_fields = ('title', 'project__name', 'created_by__username')
     readonly_fields = ('created_at','created_by')
     filter_horizontal = ('files',)
     fieldsets = (
         (None, {
-            'fields': ('title', 'commentary', 'project', 'files', 'created_by')
+            'fields': ('title', 'commentary', 'project', 'status', 'files', 'created_by')
         }),
         ('Метаданные', {
             'fields': ('created_at',)
