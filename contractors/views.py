@@ -2,10 +2,12 @@ from .models import *
 from rest_framework import viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from .serializers import *
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.decorators import permission_classes, api_view
 from users.permissions import *
 from database.logger import logger
+from .tasks import get_company_task
+
 
 @permission_classes([IsAuthenticated])
 class SubContractorViewSet(viewsets.ModelViewSet):
@@ -114,3 +116,11 @@ class ContactFaceViewSet(viewsets.ModelViewSet):
         user = request.user
         logger.info(f"Создание нового пользователя от {user.email} с ролью {user.role} от {request.META.get('REMOTE_ADDR')}")
         return super().create(request, *args, **kwargs)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@role_required_fbv(['ADMIN', 'PROJECT_MANAGER', 'RULER'])
+def get_company_api(request, id):
+    get_company_task.delay(id)
+    return Response(f"Cоздан объект")
+
+
