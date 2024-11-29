@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
+from contractors.models import GovernmentalCompany
+
 # Заголовки запроса
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -73,7 +75,7 @@ def fetch_requisites(ogrn):
                     if field_name in label_text:
                         data[key] = value_text
                         break
-
+        data["OGRN"] = ogrn
         return data
     else:
         raise Exception(f"Ошибка при запросе страницы: {response.status_code}")
@@ -82,9 +84,28 @@ def fetch_requisites(ogrn):
 
 #ogrn = "1027739405540" #пример входных данных
 
-#функция которую надо вызывать для извлечения данных, принимает на вход ОГРН
+
+def from_company_data_to_object(company_data: dict) -> GovernmentalCompany:
+    object_to_create = GovernmentalCompany(
+        title=company_data["CompanyName"],
+        address=company_data["address"],
+        okfs=company_data["OKFS"],
+        okopf=company_data["OKOPF"],
+        okogu=company_data["OKOGU"],
+        inn=company_data["INN"],
+        ogrn=company_data["OGRN"],
+        kpp=company_data["KPP"],
+        okato=company_data["OKATO"],
+        okpo=company_data["OKPO"],
+        oktmo=company_data["OKTMO"],
+    )
+    return object_to_create
+
+
+# функция которую надо вызывать для извлечения данных, принимает на вход ОГРН
 def get_info(ogrn):
     company_data = fetch_requisites(ogrn)
-    # Сохраняем в JSON
-    with open("company_data.json", "w", encoding="utf-8") as f:
-        json.dump(company_data, f, ensure_ascii=False, indent=4)
+    object_to_create = from_company_data_to_object(company_data)
+    return object_to_create
+
+
