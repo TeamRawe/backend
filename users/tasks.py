@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 from database.settings import EMAIL_HOST_USER
 
 @shared_task
-def send_email_notification(subject, message, email, recipient_list):
+def send_email_notification(subject, message, recipient_list):
     """
     Отправка уведомления на почту через Celery.
     """

@@ -22,6 +22,7 @@ services:
     command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
+      - ./media:/app/media
     ports:
       - "8000:8000"
     depends_on:
@@ -36,6 +37,7 @@ services:
       - LAN_IPS=192.168.0.0/16
       - DJANGO_SECRET_KEY="django-insecure-pgpp!$od9r+4u1(=0mz2=h1_(zd5nd-9!vcl2#yoba)s(513$d"
       - DEBUG=True
+      - MEDIA_ROOT=/app/media
 
   celery:
     build: .

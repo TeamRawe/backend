@@ -232,3 +232,8 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 DATE_FORMAT = 'd-m-Y'  # Формат: день-месяц-год
 TIME_FORMAT = 'H:i:s'  # Можно добавить формат для времени, если нужно
 DATETIME_FORMAT = 'd-m-Y H:i:s'  # Для комбинированного формата даты и времени
+
+#MEDIA
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

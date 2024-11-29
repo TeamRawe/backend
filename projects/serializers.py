@@ -4,11 +4,16 @@ from users.models import User  # Ensure User model import
 
 class ReadFileSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)  # Only for read
+    file_name = serializers.SerializerMethodField()
 
     class Meta:
         model = File
-        fields = ['id', 'project', 'stage', 'category', 'file', 'created_by']
+        fields = ['id', 'project', 'stage', 'category', 'file', 'created_by','file_name', 'created_at']
         read_only_fields = ['id', 'category', 'created_by']
+
+    def get_file_name(self, obj):
+        # Возвращаем имя файла, извлекая его из пути
+        return obj.file.name.split('/')[-1]  # Получаем имя файла из пути
 
 
 class CreateFileSerializer(serializers.ModelSerializer):
@@ -33,6 +38,9 @@ class ReadProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['id', 'title', 'description', 'start_date', 'end_date', 'planned_cost', 'customer', 'progress', 'created_by', 'status']
         read_only_fields = ['id', 'created_by']
+
+    def get_status_display(self, obj):
+        return obj.get_status_display()
 
 
 class CreateProjectSerializer(serializers.ModelSerializer):
@@ -75,6 +83,9 @@ class ReadStageSerializer(serializers.ModelSerializer):
         fields = ['id', 'project','worker', 'parent_stage', 'title', 'start_date', 'end_date', 'planned_cost', 'status', 'number', 'progress', 'created_by']
         read_only_fields = ['id', 'number', 'created_by']
 
+    def get_status_display(self, obj):
+        return obj.get_status_display()
+
 
 class CreateStageSerializer(serializers.ModelSerializer):
     created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())  # Automatically set to current user
@@ -95,7 +106,7 @@ class StageReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StageReport
-        fields = ['id', 'title', 'commentary', 'created_at', 'stage', 'files', 'created_by']
+        fields = ['id', 'title', 'commentary', 'created_at', 'stage', 'files', 'created_by','answer']
 
     def create(self, validated_data):
         files_data = validated_data.pop('files', [])
@@ -109,7 +120,7 @@ class ProjectReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProjectReport
-        fields = ['id', 'title', 'commentary', 'created_at', 'project', 'files', 'created_by']
+        fields = ['id', 'title', 'commentary', 'created_at', 'project', 'files', 'created_by','answer']
 
     def create(self, validated_data):
         files_data = validated_data.pop('files', [])

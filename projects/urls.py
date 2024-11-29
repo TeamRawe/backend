@@ -27,19 +27,21 @@ stage_router.register(r'project_reports', views.StageViewSet, basename='project_
 
 # API
 urlpatterns = [
-    path('test_assign/<uuid:project_id>/<uuid:stage_id>/', views.test_assign, name='test_assign'),  # Тест
-    # принадлежности пользователя к данной сущности
+    path('test_assign/<uuid:project_id>/<uuid:stage_id>/', views.test_assign, name='test_assign'),
     path('', include(project_router.urls)),  # Проекты
     path('', include(file_router.urls)),  # Файлы
     path('', include(project_assignment_router.urls)),  # Назначения для проектов
     path('', include(stage_assignment_router.urls)),  # Назначения для этапов
     path('', include(stage_router.urls)),  # Этапы
-    path('', include(stage_report_router.urls)),
-    path('', include(project_report_router.urls)),
+    path('', include(stage_report_router.urls)),  # Отчеты по этапам
+    path('', include(project_report_router.urls)),  # Отчеты по проектам
     path('e/ms/', project_from_file),
     path('e/user_projects/', get_user_projects, name='user-projects'),
     path('e/project_stages/<uuid:project_id>/', get_project_stages),
     path('e/stage_substages/<uuid:stage_id>/', get_stage_substages),
     path('e/project_files/<uuid:project_id>/<str:type>/', get_project_files),
     path('e/stage_files/<uuid:stage_id>/<str:type>/', get_stage_files),
+    path('e/project_files/<uuid:project_id>/', get_project_files),
+    path('e/stage_files/<uuid:stage_id>/', get_stage_files),
+    path('e/download_file/<uuid:file_id>/', download_file),
 ]
