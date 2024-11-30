@@ -14,4 +14,5 @@ urlpatterns = [
     path('login/', admin_views.login_page, name='login_page'),
     path('administration/', admin_views.custom_admin_view, name='administration'),
     path('', admin.site.urls),
+    path('download-logs/', admin_views.download_logs, name='download-logs'),
 ]

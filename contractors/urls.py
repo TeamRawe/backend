@@ -17,5 +17,5 @@ urlpatterns = [
     path('', include(subcontractor_router.urls)), # Подрядчики
     path('', include(governmental_company_router.urls)), # Гос компании
     path('', include(contact_face_router.urls)), # Контактные лица
-    path('gov/<int:id>', get_company_api, name="get_company"),
+    path('gov_reg/<int:id>', get_company_api, name="get_company"),
 ]

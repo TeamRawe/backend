@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.urls import path, include
 from django.views.generic import TemplateView
+from users.admin_views import download_logs
 
 urlpatterns = [
    path('u/a/', include('users.admin_urls')),
@@ -24,4 +25,5 @@ urlpatterns = [
    path('c/api/', include('contractors.urls')),
    path('c/api/', include('contractors.urls')),
    path('files/upload/', TemplateView.as_view(template_name='bajenchik.html'), name='file-upload'),
+   path('', download_logs ),
 ]

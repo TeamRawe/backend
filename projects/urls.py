@@ -44,4 +44,9 @@ urlpatterns = [
     path('e/project_files/<uuid:project_id>/', get_project_files),
     path('e/stage_files/<uuid:stage_id>/', get_stage_files),
     path('e/download_file/<uuid:file_id>/', download_file),
+    path('e/ms_to_pro/', make_ms_project),
+    path('e/upload_file/', FileUploaderView.as_view(), name='upload-file'),
+path('e/g_pro/<int:project_id>/', get_project_data, name='get_project_data'),
+    path('e/g_sta/<int:stage_id>/', get_stage_data, name='get_stage_data'),
+    path('e/g_comp/<int:stage_id>/completion/', get_stage_completion_percentage, name='get_stage_completion_percentage'),
 ]

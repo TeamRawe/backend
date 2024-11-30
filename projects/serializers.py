@@ -21,7 +21,7 @@ class CreateFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ['project', 'stage', 'file', 'created_by']
+        fields = ['project', 'stage', 'file']
         read_only_fields = ['category']  # Category will be automatically set in the model's save method
 
     def validate(self, data):
