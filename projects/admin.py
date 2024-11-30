@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 # Админка для модели File
 class FileAdmin(admin.ModelAdmin):
-    list_display = ('category', 'file', 'project', 'stage', 'created_at', 'created_by')
+    list_display = ('category', 'file', 'project', 'stage', 'created_at', 'created_by','id')
     search_fields = ('file', 'category', 'project__title', 'stage__title')
     list_filter = ('category', 'project', 'stage')
     ordering = ('-created_at',)
@@ -78,7 +78,7 @@ class StageReportAdmin(admin.ModelAdmin):
     filter_horizontal = ('files',)
     fieldsets = (
         (None, {
-            'fields': ('title', 'commentary','status', 'stage', 'files', 'created_by')
+            'fields': ('title', 'commentary','status', 'stage','answer', 'files', 'created_by')
         }),
         ('Metadata', {
             'fields': ('created_at',)
@@ -93,7 +93,7 @@ class ProjectReportAdmin(admin.ModelAdmin):
     filter_horizontal = ('files',)
     fieldsets = (
         (None, {
-            'fields': ('title', 'commentary', 'project', 'status', 'files', 'created_by')
+            'fields': ('title', 'commentary', 'project', 'status','answer', 'files', 'created_by')
         }),
         ('Метаданные', {
             'fields': ('created_at',)

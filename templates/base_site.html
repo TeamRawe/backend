@@ -1,0 +1,21 @@
+ extends "admin/base_site.html" %}
+{% load static %}
+{% block title %}Админ панель{% endblock %}
+
+{% block extrahead %}
+   <link rel="icon" href="{% static 'isvs.ico' %}" type="image/x-icon">
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="card">
+        <div class="card-header">
+            <h3>Логи</h3>
+        </div>
+        <div class="card-body">
+            <a href="{{ download_logs_url }}" class="button" style="color: white; background-color: #007bff; padding: 10px 15px; text-decoration: none; border-radius: 5px;">
+                Скачать логи
+            </a>
+        </div>
+    </div>
+{% endblock %}

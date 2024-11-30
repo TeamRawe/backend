@@ -7,6 +7,8 @@ from rest_framework import viewsets
 from .permissions import *
 from .models import User
 from .serializers import ReadUserSerializer, UserCreateSerializer, UserUpdateSerializer
+from django.http import FileResponse, Http404
+import os
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -56,4 +58,13 @@ def custom_admin_view(request):
         return redirect('/u/a/login/')
     return render(request, 'administration.html')
 
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def download_logs(request):
+    log_file_path = os.path.join('logs', 'async_log.log')
+    if os.path.exists(log_file_path):
+        response = FileResponse(open(log_file_path, 'rb'), content_type='application/octet-stream')
+        response['Content-Disposition'] = f'attachment; filename="logs.log"'
+        return response
+    raise Http404("Log file not found.")
 

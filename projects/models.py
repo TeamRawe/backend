@@ -7,7 +7,10 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from database.settings import ALLOWED_FILE_EXTENSIONS
 from datetime import datetime
 from django.utils import timezone
-
+from django.utils.text import get_valid_filename
+import os
+from database.logger import logger
+from .tasks import send_cluster_email_notification
 # Create your models here.
 
 class File(models.Model):
@@ -42,20 +45,11 @@ class File(models.Model):
 
     def dynamic_file_path(instance, filename):
         """Динамически генерирует путь для загрузки файла"""
-        # Если файл привязан к проекту
-        if instance.project:
-            identifier = instance.project.id
-            category = 'projects'
-        # Если файл привязан к этапу
-        elif instance.stage:
-            identifier = instance.stage.id
-            category = 'stages'
-        else:
-            identifier = 'unknown'
-            category = 'misc'
-
         date_path = datetime.now().strftime('%Y/%m/%d')
-        return f'{category}/{identifier}/{date_path}/{filename}'
+
+        filename = get_valid_filename(os.path.basename(filename))
+
+        return os.path.join('uploads', date_path, filename)
 
     file = models.FileField(
         upload_to=dynamic_file_path,
@@ -89,6 +83,7 @@ class File(models.Model):
         # Автоматически определяем категорию при сохранении
         if not self.category:
             self.category = self.recognise_filetype(self.file.name)
+
 
         # TODO: В будущем добавим проверку на вирусы через magic (redis + celery)
         # Проверка на вирусы будет выполняться здесь перед сохранением
@@ -434,6 +429,12 @@ class StageReport(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     budget = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
+    answer = models.TextField(
+        blank=True,  # Может быть пустым
+        null=True,
+        help_text="Ответ на отчет (доступен только при изменении отчета)"
+    )
+
     def __str__(self):
         return f"{self.title}"
 
@@ -441,6 +442,20 @@ class StageReport(models.Model):
         # Проверка, что отчет связан хотя бы с одним этапом
         if not self.stage:
             raise ValidationError("Отчет этапа должен быть связан хотя бы с одним этапом.")
+
+    def save(self, *args, **kwargs):
+        # Проверка, изменился ли статус
+        if self.pk:  # Если объект уже существует (это обновление)
+            old_instance = StageReport.objects.get(pk=self.pk)
+            if old_instance.status != self.status:
+                # Логирование изменения статуса
+                logger.info(
+                    f"Статус ProjectReport (ID: {self.id}) изменен с {old_instance.status} на {self.status} пользователем {self.created_by}")
+                send_cluster_email_notification.delay(
+        subject=f'Этапный отчет "{self.title}" сменил свой статус на "{self.get_status_display()}"',
+        message=f'Добрый день. Отчет "{self.title}" этапа "{self.stage.title}" проекта "{self.stage.project.title}" сменил свой статус с "{old_instance.get_status_display()}" на "{self.get_status_display()}"\n\n{self.answer}'
+    )
+        super().save(*args, **kwargs)  # Сохраняем объект в базу данных
 
 class ProjectReport(models.Model):
     id = models.UUIDField(
@@ -486,7 +501,7 @@ class ProjectReport(models.Model):
     )
 
     TYPE_CHOICES = [
-        ('REQUEST', 'Запрос'),
+        ('REQUEST','Запрос'),
         ('REPORT', 'Отчет'),
         ('NOTE', 'Примечание'),
     ]
@@ -500,6 +515,12 @@ class ProjectReport(models.Model):
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='REPORT')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
 
+    answer = models.TextField(
+        blank=True,  # Может быть пустым
+        null=True,
+        help_text="Ответ на отчет (доступен только при изменении отчета)"
+    )
+
     def __str__(self):
         return f"{self.title}"
 
@@ -507,3 +528,18 @@ class ProjectReport(models.Model):
         # Проверка, что отчет связан хотя бы с одним этапом
         if not self.project:
             raise ValidationError("Отчет должен быть связан с проектом")
+
+    def save(self, *args, **kwargs):
+        # Проверка, изменился ли статус
+        if self.pk:  # Если объект уже существует (это обновление)
+            old_instance = ProjectReport.objects.get(pk=self.pk)
+            if old_instance.status != self.status:
+                # Логирование изменения статуса
+                logger.info(
+                    f"Статус ProjectReport (ID: {self.id}) изменен с {old_instance.status} на {self.status} пользователем {self.created_by}")
+                send_cluster_email_notification.delay(
+                    subject=f'Проектный отчет "{self.title}" сменил свой статус на "{self.get_status_display()}"',
+                    message=f'Добрый день. Отчет "{self.title}" проекта "{self.project.title}" сменил свой статус с "{old_instance.get_status_display()}" на "{self.get_status_display()}"\n\n{self.answer}'
+                )
+
+        super().save(*args, **kwargs)  # Сохраняем объект в базу данных

@@ -121,6 +121,6 @@ class ContactFaceViewSet(viewsets.ModelViewSet):
 @role_required_fbv(['ADMIN', 'PROJECT_MANAGER', 'RULER'])
 def get_company_api(request, id):
     get_company_task.delay(id)
-    return Response(f"Cоздан объект")
+    return Response({"detail": "Запрос отправлен"}, status=status.HTTP_202_ACCEPTED)
 
 
